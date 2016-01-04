@@ -121,11 +121,9 @@ class Python_SPECK():
 
     def decrypt_round(self, x, y, k):
         #Inverse Feistel Operation
-                
         xor_xy = x ^ y     
         new_y = self.ROR_inv(xor_xy) 
         xor_xk = x ^ k
-
         msub = (xor_xk - new_y) & self.mod_mask
         new_x = self.ROL_inv(msub) 
 
@@ -159,7 +157,6 @@ class Python_SPECK():
             ciphertext = (b << self.word_size) | a                
             #print("--- SPECK Encryption %s seconds ---" % (time.time() - start_time))
             ciphertext= self.numberToByteArray(ciphertext,howManyBytes=16) 
-
                            
             #Overwrite the input with the output
             for y in xrange(16):
@@ -173,7 +170,6 @@ class Python_SPECK():
            
 
     def decrypt(self, ciphertext):
-        
         
         ciphertextBytes = ciphertext[:]
         chainBytes = self.IV[:]

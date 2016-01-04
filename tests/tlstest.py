@@ -8,9 +8,15 @@
 #   Martin von Loewis - python 3 port
 #   Hubert Kario - several improvements
 #   Google - FALLBACK_SCSV test
-#
+#   Efthimios Iosifidis - Added Speck Cipher 
+#   
 # See the LICENSE file for legal information regarding use of this file.
+
+
+
 from __future__ import print_function
+
+
 import sys
 import os
 import os.path
@@ -102,7 +108,8 @@ def clientTestCmd(argv):
     test_no = 0
 
     badFault = False
-
+ 
+ 
     print("Test {0} - anonymous handshake".format(test_no))
     synchro.recv(1)
     connection = connect()
@@ -391,7 +398,7 @@ def clientTestCmd(argv):
 
     print("Test {0} - different ciphers, TLSv1.0".format(test_no))
     for implementation in implementations:
-        for cipher in ["aes128", "aes256", "rc4"]:
+        for cipher in ["aes128", "aes256", "rc4","speck"]:
 
             test_no += 1
 
@@ -403,7 +410,7 @@ def clientTestCmd(argv):
             settings.cipherNames = [cipher]
             settings.cipherImplementations = [implementation, "python"]
             settings.minVersion = (3,1)
-            settings.maxVersion = (3,1)            
+            settings.maxVersion = (3,3)            
             connection.handshakeClientCert(settings=settings)
             testConnClient(connection)
             print("%s %s" % (connection.getCipherName(), connection.getCipherImplementation()))
@@ -414,7 +421,7 @@ def clientTestCmd(argv):
     print("Test {0} - throughput test".format(test_no))
     for implementation in implementations:
         for cipher in ["aes128gcm", "aes256gcm", "aes128", "aes256", "3des",
-                       "rc4", "chacha20-poly1305"]:
+                       "rc4", "chacha20-poly1305", "speck"]:
             # skip tests with implementations that don't support them
             if cipher == "3des" and implementation not in ("openssl",
                                                            "pycrypto"):
@@ -426,6 +433,10 @@ def clientTestCmd(argv):
             if cipher in ("chacha20-poly1305", ) and \
                     implementation not in ("python", ):
                 continue
+            
+            if cipher == "speck" and \
+                    implementation not in ("python"):
+                continue            
 
             test_no += 1
 
@@ -1014,7 +1025,7 @@ def serverTestCmd(argv):
 
     print("Test {0} - different ciphers".format(test_no))
     for implementation in ["python"] * len(implementations):
-        for cipher in ["aes128", "aes256", "rc4"]:
+        for cipher in ["aes128", "aes256", "rc4", "speck"]:
 
             test_no += 1
 
@@ -1037,7 +1048,7 @@ def serverTestCmd(argv):
     print("Test {0} - throughput test".format(test_no))
     for implementation in implementations:
         for cipher in ["aes128gcm", "aes256gcm", "aes128", "aes256", "3des",
-                       "rc4", "chacha20-poly1305"]:
+                       "rc4", "chacha20-poly1305", "speck"]:
             # skip tests with implementations that don't support them
             if cipher == "3des" and implementation not in ("openssl",
                                                            "pycrypto"):
@@ -1048,6 +1059,10 @@ def serverTestCmd(argv):
                 continue
             if cipher in ("chacha20-poly1305", ) and \
                     implementation not in ("python", ):
+                continue
+            
+            if cipher == "speck" and \
+                    implementation not in ("python"):
                 continue
 
             test_no += 1

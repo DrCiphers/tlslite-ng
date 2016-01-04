@@ -554,6 +554,9 @@ encrypt-then-MAC mode for CBC ciphers.
 
 12 History
 ===========
+0.6.1 - 2016-04-01
+ - support for the Speck Cipher - Expiremental 
+
 
 0.6.0 - WIP
  - support for the padding extension from RFC 7685 (Karel Srot)

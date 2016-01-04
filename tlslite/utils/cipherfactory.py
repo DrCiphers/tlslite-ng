@@ -1,4 +1,6 @@
 # Author: Trevor Perrin
+#
+# Efthimios Iosifidis - Speck Cipher 
 # See the LICENSE file for legal information regarding use of this file.
 
 """Factory functions for symmetric cryptography."""
@@ -9,6 +11,8 @@ from tlslite.utils import python_aes
 from tlslite.utils import python_aesgcm
 from tlslite.utils import python_chacha20_poly1305
 from tlslite.utils import python_rc4
+from tlslite.utils import python_speck
+
 
 from tlslite.utils import cryptomath
 
@@ -44,7 +48,7 @@ def createAES(key, IV, implList=None):
     @return: An AES object.
     """
     if implList is None:
-        implList = ["openssl", "pycrypto", "python"]
+        implList = ["openssl", "python", "pycrypto" ]
 
     for impl in implList:
         if impl == "openssl" and cryptomath.m2cryptoLoaded:
@@ -53,6 +57,26 @@ def createAES(key, IV, implList=None):
             return pycrypto_aes.new(key, 2, IV)
         elif impl == "python":
             return python_aes.new(key, 2, IV)
+    raise NotImplementedError()
+
+def createSPECK(key, IV, implList=None):
+    """Create a new SPECK object.
+
+    @type key: str
+    @param key: A 16 byte string.
+
+    @type IV: str
+    @param IV: A 16 byte string
+
+    @rtype: L{tlslite.utils.SPECK}
+    @return: A SPECK object.
+    """
+    if implList is None:
+        implList = ["python"]
+
+    for impl in implList:
+        if impl == "python":
+            return python_speck.new(key,IV)
     raise NotImplementedError()
 
 def createAESGCM(key, implList=None):

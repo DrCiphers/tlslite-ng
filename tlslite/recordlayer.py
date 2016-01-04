@@ -1,16 +1,17 @@
 # Copyright (c) 2014, Hubert Kario
 #
+# Efthimios Iosifidis - Speck Cipher Additions 
 # See the LICENSE file for legal information regarding use of this file.
 
 """Implementation of the TLS Record Layer protocol"""
 
 import socket
 import errno
-from .utils import tlshashlib as hashlib
+import hashlib
 from .constants import ContentType, CipherSuite
 from .messages import RecordHeader3, RecordHeader2, Message
 from .utils.cipherfactory import createAESGCM, createAES, createRC4, \
-        createTripleDES, createCHACHA20
+        createTripleDES, createCHACHA20,createSPECK
 from .utils.codec import Parser, Writer
 from .utils.compat import compatHMAC
 from .utils.cryptomath import getRandomBytes
@@ -682,6 +683,10 @@ class RecordLayer(object):
             keyLength = 0
             ivLength = 0
             createCipherFunc = None
+        elif cipherSuite in CipherSuite.SpeckSuites:
+            keyLength = 16
+            ivLength = 16
+            createCipherFunc = createSPECK
         else:
             raise AssertionError()
 

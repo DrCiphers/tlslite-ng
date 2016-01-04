@@ -146,8 +146,7 @@ class Python_SPECK():
 
             blockBytesNum = self.bytesToNumber(blockBytes)
     
-            #start_time = time.time()               
-            
+       
             b = (blockBytesNum >> self.word_size) & self.mod_mask
             a = blockBytesNum & self.mod_mask
 
@@ -155,7 +154,6 @@ class Python_SPECK():
                 b, a = self.encrypt_round(b, a, i)
                               
             ciphertext = (b << self.word_size) | a                
-            #print("--- SPECK Encryption %s seconds ---" % (time.time() - start_time))
             ciphertext= self.numberToByteArray(ciphertext,howManyBytes=16) 
                            
             #Overwrite the input with the output

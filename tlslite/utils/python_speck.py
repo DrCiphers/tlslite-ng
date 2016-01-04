@@ -5,10 +5,6 @@
 # See the LICENSE file for legal information regarding use of this file.
 
 
-
-import time
-    
-    
 def new(key, IV):
     return Python_SPECK(key, IV)
 
@@ -134,16 +130,13 @@ class Python_SPECK():
         new_x = self.ROL_inv(msub) 
 
         return new_x, new_y
-   
-  
+
     
     def encrypt(self, plaintext):        
         
         plaintextBytes = plaintext[:]
         chainBytes = self.IV[:]      
-        
-
-        
+     
         #CBC Mode: For each block...
         for x in xrange(len(plaintextBytes)//16):
             
@@ -153,9 +146,6 @@ class Python_SPECK():
             for y in xrange(16):
                 blockBytes[y] ^= chainBytes[y]
 
-
-           
-            
             blockBytesNum = self.bytesToNumber(blockBytes)
     
             #start_time = time.time()               
@@ -163,20 +153,13 @@ class Python_SPECK():
             b = (blockBytesNum >> self.word_size) & self.mod_mask
             a = blockBytesNum & self.mod_mask
 
-
-            
             for i in self.key_schedule:
                 b, a = self.encrypt_round(b, a, i)
-
                               
             ciphertext = (b << self.word_size) | a                
-                             
             #print("--- SPECK Encryption %s seconds ---" % (time.time() - start_time))
-                        
             ciphertext= self.numberToByteArray(ciphertext,howManyBytes=16) 
-            
-            
-             
+
                            
             #Overwrite the input with the output
             for y in xrange(16):
@@ -184,9 +167,7 @@ class Python_SPECK():
 
             #Set the next chaining block
             chainBytes = ciphertext
-
-
-        
+    
         self.IV = chainBytes[:]
         return bytearray(plaintextBytes)
            
@@ -196,7 +177,6 @@ class Python_SPECK():
         
         ciphertextBytes = ciphertext[:]
         chainBytes = self.IV[:]
-
 
         #CBC Mode: For each block...
         for x in xrange(len(ciphertextBytes)//16):
@@ -226,6 +206,5 @@ class Python_SPECK():
             chainBytes = blockBytes
 
         self.IV = chainBytes[:]
-
-        
+ 
         return bytearray(ciphertextBytes)

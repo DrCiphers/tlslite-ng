@@ -5,6 +5,7 @@
 #   Dimitris Moraitis - Anon ciphersuites
 #   Dave Baggett (Arcode Corporation) - canonicalCipherName
 #   Yngve Pettersen (ported by Paul Sokolovsky) - TLS 1.2
+#   Efthimis Iosifidis - SPECK Cipher Implementation/Integration
 #
 # See the LICENSE file for legal information regarding use of this file.
 
@@ -14,25 +15,15 @@ class TLSEnum(object):
     """Base class for different enums of TLS IDs"""
 
     @classmethod
-    def _recursiveVars(cls, klass):
-        """Call vars recursively on base classes"""
-        fields = dict()
-        for basecls in klass.__bases__:
-            fields.update(cls._recursiveVars(basecls))
-        fields.update(dict(vars(klass)))
-        return fields
-
-    @classmethod
     def toRepr(cls, value, blacklist=None):
         """
         Convert numeric type to string representation
 
         name if found, None otherwise
         """
-        fields = cls._recursiveVars(cls)
         if blacklist is None:
             blacklist = []
-        return next((key for key, val in fields.items() \
+        return next((key for key, val in cls.__dict__.items() \
                     if key not in ('__weakref__', '__dict__', '__doc__',
                                    '__module__') and \
                        key not in blacklist and \
@@ -156,7 +147,7 @@ class GroupName(TLSEnum):
     brainpoolP256r1 = 26
     brainpoolP384r1 = 27
     brainpoolP512r1 = 28
-    allEC.extend(list(range(26, 29)))
+    allEC.append(list(range(26, 29)))
 
     # RFC-ietf-tls-negotiated-ff-dhe-10
     ffdhe2048 = 256
@@ -356,6 +347,8 @@ class CipherSuite:
     TLS_DHE_RSA_WITH_AES_256_CBC_SHA = 0x0039
     ietfNames[0x0039] = 'TLS_DHE_RSA_WITH_AES_256_CBC_SHA'
 
+
+
     # RFC 5246 - TLS v1.2 Protocol
     TLS_DH_ANON_WITH_RC4_128_MD5 = 0x0018
     ietfNames[0x0018] = 'TLS_DH_ANON_WITH_RC4_128_MD5'
@@ -385,6 +378,7 @@ class CipherSuite:
     ietfNames[0x0067] = 'TLS_DHE_RSA_WITH_AES_128_CBC_SHA256'
     TLS_DHE_RSA_WITH_AES_256_CBC_SHA256 = 0x006B
     ietfNames[0x006B] = 'TLS_DHE_RSA_WITH_AES_256_CBC_SHA256'
+      
 
     # RFC 5288 - AES-GCM ciphers for TLSv1.2
     TLS_RSA_WITH_AES_128_GCM_SHA256 = 0x009C
@@ -403,6 +397,10 @@ class CipherSuite:
     ietfNames[0xC013] = 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA'
     TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA = 0xC014
     ietfNames[0xC014] = 'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA'
+    
+   
+    
+    
     TLS_ECDH_ANON_WITH_NULL_SHA = 0xC015
     ietfNames[0xC015] = 'TLS_ECDH_ANON_WITH_NULL_SHA'
     TLS_ECDH_ANON_WITH_RC4_128_SHA = 0xC016
@@ -429,6 +427,27 @@ class CipherSuite:
     ietfNames[0xC02F] = 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
     TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 = 0xC030
     ietfNames[0xC030] = 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
+    
+    
+    # SPECK CIPHER Expiremental 
+    TLS_ECDHE_RSA_WITH_SPECK_128_CBC_SHA = 0x006E
+    ietfNames[0x006E] = 'TLS_ECDHE_RSA_WITH_SPECK_128_CBC_SHA'  
+    TLS_ECDHE_RSA_WITH_SPECK_128_CBC_SHA256 = 0x006F
+    ietfNames[0x006F] = 'TLS_ECDHE_RSA_WITH_SPECK_128_CBC_SHA256'      
+
+    TLS_RSA_WITH_SPECK_128_CBC_SHA = 0x007A
+    ietfNames[0x007A] = 'TLS_RSA_WITH_SPECK_128_CBC_SHA'  
+    TLS_RSA_WITH_SPECK_128_CBC_SHA256 = 0x007B
+    ietfNames[0x007B] = 'TLS_RSA_WITH_SPECK_128_CBC_SHA256'      
+
+    TLS_DHE_RSA_WITH_SPECK_128_CBC_SHA = 0x007C
+    ietfNames[0x007C] = 'TLS_DHE_RSA_WITH_SPECK_128_CBC_SHA'        
+    TLS_DHE_RSA_WITH_SPECK_128_CBC_SHA256 = 0x007D
+    ietfNames[0x007D] = 'TLS_DHE_RSA_WITH_SPECK_128_CBC_SHA256'
+    
+    
+
+
 
 #pylint: enable = invalid-name
     #
@@ -490,6 +509,17 @@ class CipherSuite:
     chacha20Suites = []
     chacha20Suites.append(TLS_DHE_RSA_WITH_CHACHA20_POLY1305)
 
+
+    # SPECK cipher
+    SpeckSuites = []
+    SpeckSuites.append(TLS_RSA_WITH_SPECK_128_CBC_SHA)
+    SpeckSuites.append(TLS_RSA_WITH_SPECK_128_CBC_SHA256)
+    SpeckSuites.append(TLS_ECDHE_RSA_WITH_SPECK_128_CBC_SHA)  
+    SpeckSuites.append(TLS_ECDHE_RSA_WITH_SPECK_128_CBC_SHA256) 
+    SpeckSuites.append(TLS_DHE_RSA_WITH_SPECK_128_CBC_SHA)  
+    SpeckSuites.append(TLS_DHE_RSA_WITH_SPECK_128_CBC_SHA256)    
+    
+    
     # RC4 128 stream cipher
     rc4Suites = []
     rc4Suites.append(TLS_DH_ANON_WITH_RC4_128_MD5)
@@ -516,16 +546,19 @@ class CipherSuite:
     shaSuites.append(TLS_RSA_WITH_3DES_EDE_CBC_SHA)
     shaSuites.append(TLS_RSA_WITH_AES_128_CBC_SHA)
     shaSuites.append(TLS_RSA_WITH_AES_256_CBC_SHA)
+    shaSuites.append(TLS_RSA_WITH_SPECK_128_CBC_SHA)
     shaSuites.append(TLS_RSA_WITH_RC4_128_SHA)
     shaSuites.append(TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA)
     shaSuites.append(TLS_DHE_RSA_WITH_AES_128_CBC_SHA)
     shaSuites.append(TLS_DHE_RSA_WITH_AES_256_CBC_SHA)
+    shaSuites.append(TLS_DHE_RSA_WITH_SPECK_128_CBC_SHA)
     shaSuites.append(TLS_DH_ANON_WITH_AES_128_CBC_SHA)
     shaSuites.append(TLS_DH_ANON_WITH_AES_256_CBC_SHA)
     shaSuites.append(TLS_DH_ANON_WITH_3DES_EDE_CBC_SHA)
     shaSuites.append(TLS_RSA_WITH_NULL_SHA)
     shaSuites.append(TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA)
     shaSuites.append(TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA)
+    shaSuites.append(TLS_ECDHE_RSA_WITH_SPECK_128_CBC_SHA)
     shaSuites.append(TLS_ECDHE_RSA_WITH_NULL_SHA)
     shaSuites.append(TLS_ECDH_ANON_WITH_AES_256_CBC_SHA)
     shaSuites.append(TLS_ECDH_ANON_WITH_AES_128_CBC_SHA)
@@ -537,12 +570,16 @@ class CipherSuite:
     sha256Suites = []
     sha256Suites.append(TLS_RSA_WITH_AES_128_CBC_SHA256)
     sha256Suites.append(TLS_RSA_WITH_AES_256_CBC_SHA256)
+    sha256Suites.append(TLS_RSA_WITH_SPECK_128_CBC_SHA256)
     sha256Suites.append(TLS_DHE_RSA_WITH_AES_128_CBC_SHA256)
     sha256Suites.append(TLS_DHE_RSA_WITH_AES_256_CBC_SHA256)
+    sha256Suites.append(TLS_DHE_RSA_WITH_SPECK_128_CBC_SHA256)
     sha256Suites.append(TLS_RSA_WITH_NULL_SHA256)
     sha256Suites.append(TLS_DH_ANON_WITH_AES_128_CBC_SHA256)
     sha256Suites.append(TLS_DH_ANON_WITH_AES_256_CBC_SHA256)
     sha256Suites.append(TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256)
+    sha256Suites.append(TLS_ECDHE_RSA_WITH_SPECK_128_CBC_SHA256)
+    
 
     # SHA-384 HMAC, SHA-384 PRF
     sha384Suites = []
@@ -625,6 +662,8 @@ class CipherSuite:
             cipherSuites += CipherSuite.tripleDESSuites
         if "rc4" in cipherNames:
             cipherSuites += CipherSuite.rc4Suites
+        if "speck" in cipherNames:
+            cipherSuites += CipherSuite.SpeckSuites            
         if "null" in cipherNames:
             cipherSuites += CipherSuite.nullSuites
 
@@ -682,8 +721,10 @@ class CipherSuite:
     certSuites.append(TLS_RSA_WITH_AES_128_GCM_SHA256)
     certSuites.append(TLS_RSA_WITH_AES_256_CBC_SHA256)
     certSuites.append(TLS_RSA_WITH_AES_128_CBC_SHA256)
+    certSuites.append(TLS_RSA_WITH_SPECK_128_CBC_SHA256)
     certSuites.append(TLS_RSA_WITH_AES_256_CBC_SHA)
     certSuites.append(TLS_RSA_WITH_AES_128_CBC_SHA)
+    certSuites.append(TLS_RSA_WITH_SPECK_128_CBC_SHA)
     certSuites.append(TLS_RSA_WITH_3DES_EDE_CBC_SHA)
     certSuites.append(TLS_RSA_WITH_RC4_128_SHA)
     certSuites.append(TLS_RSA_WITH_RC4_128_MD5)
@@ -703,9 +744,11 @@ class CipherSuite:
     dheCertSuites.append(TLS_DHE_RSA_WITH_AES_128_GCM_SHA256)
     dheCertSuites.append(TLS_DHE_RSA_WITH_AES_256_CBC_SHA256)
     dheCertSuites.append(TLS_DHE_RSA_WITH_AES_128_CBC_SHA256)
+    dheCertSuites.append(TLS_DHE_RSA_WITH_SPECK_128_CBC_SHA256)
     dheCertSuites.append(TLS_DHE_RSA_WITH_AES_256_CBC_SHA)
     dheCertSuites.append(TLS_DHE_RSA_WITH_AES_128_CBC_SHA)
     dheCertSuites.append(TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA)
+    dheCertSuites.append(TLS_DHE_RSA_WITH_SPECK_128_CBC_SHA)
 
     @classmethod
     def getDheCertSuites(cls, settings, version=None):
@@ -718,8 +761,10 @@ class CipherSuite:
     ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256)
     ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384)
     ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256)
+    ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_SPECK_128_CBC_SHA256)
     ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA)
     ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA)
+    ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_SPECK_128_CBC_SHA)
     ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_NULL_SHA)
 
     @classmethod
@@ -782,6 +827,8 @@ class CipherSuite:
             return "null"
         elif ciphersuite in CipherSuite.chacha20Suites:
             return "chacha20-poly1305"
+        elif ciphersuite in CipherSuite.SpeckSuitesuites:
+            return "speck"                
         else:
             return None
 

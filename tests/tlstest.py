@@ -399,6 +399,10 @@ def clientTestCmd(argv):
     print("Test {0} - different ciphers, TLSv1.0".format(test_no))
     for implementation in implementations:
         for cipher in ["aes128", "aes256", "rc4","speck"]:
+            
+            if cipher == "speck" and \
+               implementation not in ("python"):
+                continue                
 
             test_no += 1
 
@@ -1024,9 +1028,13 @@ def serverTestCmd(argv):
     test_no += 1
 
     print("Test {0} - different ciphers".format(test_no))
-    for implementation in ["python"] * len(implementations):
+    for implementation in implementations:
         for cipher in ["aes128", "aes256", "rc4", "speck"]:
 
+            if cipher == "speck" and \
+                   implementation not in ("python"):
+                continue            
+                       
             test_no += 1
 
             print("Test {0}:".format(test_no), end=' ')

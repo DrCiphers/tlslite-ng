@@ -49,32 +49,7 @@ class Python_SPECK():
             new_l_k = self.encrypt_round(l_schedule[x], self.key_schedule[x], x)
             l_schedule.append(new_l_k[0])
             self.key_schedule.append(new_l_k[1])
-            
-      
-       
-    # ROR(x, r) ((x >> r) | (x << (64 - r)))
-    def ROR(self,x):
-        rs_x = ((x >> 8) | (x << 56))& 18446744073709551615L
-        return rs_x
-
-
-    #ROL(x, r) ((x << r) | (x >> (64 - r)))
-    def ROL(self,x):
-        ls_x = ((x << 3) | (x >> 61))& 18446744073709551615L
-        return ls_x
-
-
-    # ROR(x, r) ((x >> r) | (x << (64 - r)))
-    def ROR_inv(self,x):
-        rs_x = ((x >> 3) | (x << 61))& 18446744073709551615L
-        return rs_x
-
-
-    #ROL(x, r) ((x << r) | (x >> (64 - r)))
-    def ROL_inv(self,x):
-        ls_x = ((x << 8) | (x >> 56))& 18446744073709551615L
-        return ls_x
-
+        
 
     def bytesToNumber(self,b):
         total = 0
@@ -104,10 +79,10 @@ class Python_SPECK():
         
     def encrypt_round(self, x, y, k):
         #Feistel Operation
-        new_x = self.ROR(x)   #x = ROR(x, 8)
+        new_x = ((x << 56) | (x >> 8))& 18446744073709551615L # x = ROR(x, 8)
         new_x = (new_x + y) & 18446744073709551615L
         new_x ^= k 
-        new_y = self.ROL(y)    #y = ROL(y, 3)
+        new_y = ((y >> 61) | (y << 3))& 18446744073709551615L # y = ROL(y, 3)
         new_y ^= new_x
 
         return new_x, new_y
@@ -117,11 +92,11 @@ class Python_SPECK():
         #Inverse Feistel Operation
                 
         xor_xy = x ^ y     
-        new_y = self.ROR_inv(xor_xy) 
+        new_y = ((xor_xy << 61) | (xor_xy >> 3))& 18446744073709551615L  # x = ROR_inv(xor_xy) 
         xor_xk = x ^ k
 
         msub = (xor_xk - new_y) & 18446744073709551615L
-        new_x = self.ROL_inv(msub) 
+        new_x = ((msub >> 56) |(msub << 8))& 18446744073709551615L # y = ROL_inv(msub) 
 
         return new_x, new_y
    

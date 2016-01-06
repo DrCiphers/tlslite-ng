@@ -139,20 +139,15 @@ class Python_SPECK():
             #XOR with the chaining block
             blockBytes = plaintextBytes[x*16 : (x*16)+16]
         
-                
             for y in range(16):
                 blockBytes[y] ^= chainBytes[y]
-            
-            
-           
+               
             blockBytesNum = self.bytesToNumber(blockBytes)
-
 
             mod_mask = 18446744073709551615L
             
             b = (blockBytesNum >> self.word_size) & mod_mask
-            a = blockBytesNum & mod_mask      
-            
+            a = blockBytesNum & mod_mask            
            
             keylist = self.key_schedule
 
@@ -162,7 +157,6 @@ class Python_SPECK():
                 
             ciphertext = (b << self.word_size) | a                             
             ciphertext= self.numberToByteArray(ciphertext) 
-            
                         
             #Overwrite the input with the output
             for y in xrange(16):
@@ -180,7 +174,6 @@ class Python_SPECK():
         
         ciphertextBytes = ciphertext[:]
         chainBytes = self.IV[:]
-
 
         mod_mask = 18446744073709551615L
 
@@ -206,7 +199,6 @@ class Python_SPECK():
             for y in xrange(16):
                 plaintext[y] ^= chainBytes[y]
                 ciphertextBytes[(x*16)+y] = plaintext[y]
-
             
             #Set the next chaining block
             chainBytes = blockBytes

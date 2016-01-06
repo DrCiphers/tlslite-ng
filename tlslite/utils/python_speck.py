@@ -4,7 +4,7 @@
 #
 # See the LICENSE file for legal information regarding use of this file.
 
-
+  
 def new(key, IV):
     return Python_SPECK(key, IV)
 
@@ -15,25 +15,22 @@ class Python_SPECK():
         
         self.isBlockCipher = True
         self.isAEAD = False
-        self.block_size = 16
         self.implementation = 'python'
         self.name = 'speck'
+        
+        self.block_size = 16      #16bytes x 8bits = 128 bits 
         
         #convert the key bytesarray to int
         self.key = self.bytesToNumber(key)
         
         self.IV = IV
         self.rounds = 32
-        self.word_size = 64
-        self.k = list()
-        self.key_words = 2
+        self.word_size = 64         # alpha_shift = 8 , beta_shift = 3
+
         
-        # Create Properly Sized bit mask for truncating addition and left shift outputs
-        self.mod_mask = (2 ** self.word_size) - 1        
+        # Create Properly Sized bit mask for truncating addition and left shift outputs          
+        self.mod_mask = (2 ** self.word_size) - 1 
         
-        #The following parameters are valid when having SPECK with 128bits size blocks and 128 bit key size
-        self.alpha_shift = 8
-        self.beta_shift = 3
         
         
         # Parse the given key and truncate it to the key length
@@ -58,25 +55,25 @@ class Python_SPECK():
        
     # ROR(x, r) ((x >> r) | (x << (64 - r)))
     def ROR(self,x):
-        rs_x = ((x >> self.alpha_shift) | (x << (self.word_size - self.alpha_shift)))& self.mod_mask
+        rs_x = ((x >> 8) | (x << 56))& 18446744073709551615L
         return rs_x
 
 
     #ROL(x, r) ((x << r) | (x >> (64 - r)))
     def ROL(self,x):
-        ls_x = ((x << self.beta_shift) | (x >> (self.word_size - self.beta_shift)))& self.mod_mask
+        ls_x = ((x << 3) | (x >> 61))& 18446744073709551615L
         return ls_x
 
 
     # ROR(x, r) ((x >> r) | (x << (64 - r)))
     def ROR_inv(self,x):
-        rs_x = ((x >> self.beta_shift) | (x << (self.word_size - self.beta_shift)))& self.mod_mask
+        rs_x = ((x >> 3) | (x << 61))& 18446744073709551615L
         return rs_x
 
 
     #ROL(x, r) ((x << r) | (x >> (64 - r)))
     def ROL_inv(self,x):
-        ls_x = ((x << self.alpha_shift) | (x >> (self.word_size - self.alpha_shift)))& self.mod_mask
+        ls_x = ((x << 8) | (x >> 56))& 18446744073709551615L
         return ls_x
 
 
@@ -111,7 +108,7 @@ class Python_SPECK():
     def encrypt_round(self, x, y, k):
         #Feistel Operation
         new_x = self.ROR(x)   #x = ROR(x, 8)
-        new_x = (new_x + y) & self.mod_mask
+        new_x = (new_x + y) & 18446744073709551615L
         new_x ^= k 
         new_y = self.ROL(y)    #y = ROL(y, 3)
         new_y ^= new_x
@@ -121,56 +118,73 @@ class Python_SPECK():
 
     def decrypt_round(self, x, y, k):
         #Inverse Feistel Operation
+                
         xor_xy = x ^ y     
         new_y = self.ROR_inv(xor_xy) 
         xor_xk = x ^ k
-        msub = (xor_xk - new_y) & self.mod_mask
+
+        msub = (xor_xk - new_y) & 18446744073709551615L
         new_x = self.ROL_inv(msub) 
 
         return new_x, new_y
-
+   
+  
     
     def encrypt(self, plaintext):        
         
         plaintextBytes = plaintext[:]
         chainBytes = self.IV[:]      
-     
+        
+        
         #CBC Mode: For each block...
         for x in xrange(len(plaintextBytes)//16):
             
             #XOR with the chaining block
             blockBytes = plaintextBytes[x*16 : (x*16)+16]
             
-            for y in xrange(16):
+            for y in range(16):
                 blockBytes[y] ^= chainBytes[y]
-
+            
+            
             blockBytesNum = self.bytesToNumber(blockBytes)
-    
-       
-            b = (blockBytesNum >> self.word_size) & self.mod_mask
-            a = blockBytesNum & self.mod_mask
 
-            for i in self.key_schedule:
-                b, a = self.encrypt_round(b, a, i)
-                              
-            ciphertext = (b << self.word_size) | a                
+            mod_mask = 18446744073709551615L
+            
+            b = (blockBytesNum >> self.word_size) & mod_mask
+            a = blockBytesNum & mod_mask      
+            
+            #start_time = time.time()
+            
+            keylist = self.key_schedule
+            
+            for i in keylist:
+                b, a = self.encrypt_round(b, a, i)  
+  
+            #print("--- SPECK Encryption Block %d %s seconds ---" %(block_no , (time.time() - start_time)))
+  
+  
+            ciphertext = (b << self.word_size) | a                             
             ciphertext= self.numberToByteArray(ciphertext,howManyBytes=16) 
-                           
+                       
             #Overwrite the input with the output
             for y in xrange(16):
                 plaintextBytes[(x*16)+y] = ciphertext[y]
 
             #Set the next chaining block
             chainBytes = ciphertext
-    
+
         self.IV = chainBytes[:]
         return bytearray(plaintextBytes)
            
 
     def decrypt(self, ciphertext):
         
+        
         ciphertextBytes = ciphertext[:]
         chainBytes = self.IV[:]
+
+
+        mod_mask = 18446744073709551615L
 
         #CBC Mode: For each block...
         for x in xrange(len(ciphertextBytes)//16):
@@ -180,10 +194,12 @@ class Python_SPECK():
                
             ciphertext = self.bytesToNumber(blockBytes)
         
-            b = (ciphertext >> self.word_size) & self.mod_mask
-            a = ciphertext & self.mod_mask        
+            b = (ciphertext >> self.word_size) & mod_mask
+            a = ciphertext & mod_mask       
+
+            keylist_rev = reversed(self.key_schedule)
            
-            for i in reversed(self.key_schedule):
+            for i in keylist_rev:
                 b, a = self.decrypt_round(b, a, i)
           
             plaintext = (b << self.word_size) | a    
@@ -200,5 +216,6 @@ class Python_SPECK():
             chainBytes = blockBytes
 
         self.IV = chainBytes[:]
- 
+
+        
         return bytearray(ciphertextBytes)

@@ -78,9 +78,8 @@ class Python_SPECK():
     # define R(x, y, k) (x = ROR(x, 8), x += y, x ^= k, y = ROL(y, 3), y ^= x)
         
     def encrypt_round(self, x, y, k):
-        #Feistel Operation
-        new_x = ((x << 56) | (x >> 8))& 18446744073709551615L # x = ROR(x, 8)
-        new_x = (new_x + y) & 18446744073709551615L
+        #Feistel Operation       
+        new_x = (((x << 56) | (x >> 8)) + y) & 18446744073709551615L
         new_x ^= k 
         new_y = ((y >> 61) | (y << 3))& 18446744073709551615L # y = ROL(y, 3)
         new_y ^= new_x
@@ -107,6 +106,8 @@ class Python_SPECK():
         plaintextBytes = plaintext[:]
         chainBytes = self.IV[:]      
         
+        mod_mask = 18446744073709551615L
+        
 
         #CBC Mode: For each block...
         for x in xrange(len(plaintextBytes)//16):
@@ -114,21 +115,22 @@ class Python_SPECK():
             #XOR with the chaining block
             blockBytes = plaintextBytes[x*16 : (x*16)+16]
         
-            for y in range(16):
+            for y in xrange(16):
                 blockBytes[y] ^= chainBytes[y]
                
             blockBytesNum = self.bytesToNumber(blockBytes)
 
-            mod_mask = 18446744073709551615L
             
             b = (blockBytesNum >> self.word_size) & mod_mask
             a = blockBytesNum & mod_mask            
            
             keylist = self.key_schedule
 
-            for i in self.key_schedule:
-                b, a = self.encrypt_round(b, a, i) 
-                del i
+            encrypt = self.encrypt_round
+            
+            for i in keylist:
+                b, a = encrypt(b, a, i) 
+
                 
             ciphertext = (b << self.word_size) | a                             
             ciphertext= self.numberToByteArray(ciphertext) 
@@ -163,8 +165,10 @@ class Python_SPECK():
             b = (ciphertext >> self.word_size) & mod_mask
             a = ciphertext & mod_mask       
            
+            decrypt = self.decrypt_round
+            
             for i in reversed(self.key_schedule):
-                b, a = self.decrypt_round(b, a, i)
+                b, a = decrypt(b, a, i)
           
             plaintext = (b << self.word_size) | a    
                 

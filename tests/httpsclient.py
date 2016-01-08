@@ -5,7 +5,7 @@ from optparse import OptionParser
 
 
 settings = HandshakeSettings()
-settings.cipherNames = ['speck']
+#settings.cipherNames = ['speck']
 settings.keyExchangeNames = ['dhe_rsa']
 settings.cipherImplementations = ["python"]
 settings.macNames = ['sha256']

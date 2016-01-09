@@ -398,9 +398,9 @@ def clientTestCmd(argv):
 
     print("Test {0} - different ciphers, TLSv1.0".format(test_no))
     for implementation in implementations:
-        for cipher in ["aes128", "aes256", "rc4","speck"]:
+        for cipher in ["aes128", "aes256", "rc4","speck128"]:
             
-            if cipher == "speck" and \
+            if cipher == "speck128" and \
                implementation not in ("python"):
                 continue                
 
@@ -425,7 +425,7 @@ def clientTestCmd(argv):
     print("Test {0} - throughput test".format(test_no))
     for implementation in implementations:
         for cipher in ["aes128gcm", "aes256gcm", "aes128", "aes256", "3des",
-                       "rc4", "chacha20-poly1305", "speck"]:
+                       "rc4", "chacha20-poly1305", "speck128"]:
             # skip tests with implementations that don't support them
             if cipher == "3des" and implementation not in ("openssl",
                                                            "pycrypto"):
@@ -438,7 +438,7 @@ def clientTestCmd(argv):
                     implementation not in ("python", ):
                 continue
             
-            if cipher == "speck" and \
+            if cipher == "speck128" and \
                     implementation not in ("python"):
                 continue            
 
@@ -1029,9 +1029,9 @@ def serverTestCmd(argv):
 
     print("Test {0} - different ciphers".format(test_no))
     for implementation in implementations:
-        for cipher in ["aes128", "aes256", "rc4", "speck"]:
+        for cipher in ["aes128", "aes256", "rc4", "speck128"]:
 
-            if cipher == "speck" and \
+            if cipher == "speck128" and \
                    implementation not in ("python"):
                 continue            
                        
@@ -1056,7 +1056,7 @@ def serverTestCmd(argv):
     print("Test {0} - throughput test".format(test_no))
     for implementation in implementations:
         for cipher in ["aes128gcm", "aes256gcm", "aes128", "aes256", "3des",
-                       "rc4", "chacha20-poly1305", "speck"]:
+                       "rc4", "chacha20-poly1305", "speck128"]:
             # skip tests with implementations that don't support them
             if cipher == "3des" and implementation not in ("openssl",
                                                            "pycrypto"):
@@ -1069,7 +1069,7 @@ def serverTestCmd(argv):
                     implementation not in ("python", ):
                 continue
             
-            if cipher == "speck" and \
+            if cipher == "speck128" and \
                     implementation not in ("python"):
                 continue
 

@@ -5,7 +5,7 @@
 #   Dimitris Moraitis - Anon ciphersuites
 #   Dave Baggett (Arcode Corporation) - canonicalCipherName
 #   Yngve Pettersen (ported by Paul Sokolovsky) - TLS 1.2
-#   Efthimis Iosifidis - SPECK Cipher Implementation/Integration
+#   Efthimis Iosifidis - SPECK128 Cipher Implementation/Integration
 #
 # See the LICENSE file for legal information regarding use of this file.
 
@@ -429,7 +429,7 @@ class CipherSuite:
     ietfNames[0xC030] = 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
     
     
-    # SPECK CIPHER Expiremental 
+    # SPECK 128 CIPHER Expiremental 
     TLS_ECDHE_RSA_WITH_SPECK_128_CBC_SHA = 0xFF00
     ietfNames[0xFF00] = 'TLS_ECDHE_RSA_WITH_SPECK_128_CBC_SHA'  
     TLS_ECDHE_RSA_WITH_SPECK_128_CBC_SHA256 = 0xFF01
@@ -510,7 +510,7 @@ class CipherSuite:
     chacha20Suites.append(TLS_DHE_RSA_WITH_CHACHA20_POLY1305)
 
 
-    # SPECK cipher
+    # SPECK 128 cipher
     SpeckSuites = []
     SpeckSuites.append(TLS_RSA_WITH_SPECK_128_CBC_SHA)
     SpeckSuites.append(TLS_RSA_WITH_SPECK_128_CBC_SHA256)
@@ -662,7 +662,7 @@ class CipherSuite:
             cipherSuites += CipherSuite.tripleDESSuites
         if "rc4" in cipherNames:
             cipherSuites += CipherSuite.rc4Suites
-        if "speck" in cipherNames:
+        if "speck128" in cipherNames:
             cipherSuites += CipherSuite.SpeckSuites            
         if "null" in cipherNames:
             cipherSuites += CipherSuite.nullSuites
@@ -828,7 +828,7 @@ class CipherSuite:
         elif ciphersuite in CipherSuite.chacha20Suites:
             return "chacha20-poly1305"
         elif ciphersuite in CipherSuite.SpeckSuitesuites:
-            return "speck"                
+            return "speck128"                
         else:
             return None
 

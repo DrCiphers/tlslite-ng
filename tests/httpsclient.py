@@ -20,7 +20,7 @@ def main():
 
     parser = OptionParser(usage='%prog host [options]', description='A Simple https client used with tlslite-ng') 
     parser.add_option("--port", dest="port", help="port", default = 4443, type="int", metavar="4443")
-    parser.add_option("--algo", dest="algo", help="algo", default = "speck")
+    parser.add_option("--algo", dest="algo", help="algo", default = "speck128")
     
     (options, arguments) = parser.parse_args()
     

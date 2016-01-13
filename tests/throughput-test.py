@@ -118,8 +118,8 @@ def clientTestCmd(argv):
  
     print("Test {0} - throughput test".format(test_no))
     for implementation in ['python']:
-        for cipher in ["aes128", "aes256", "3des",
-                       "rc4", "speck128"]:
+        for cipher in ["aes128gcm", "aes128", "aes256", "3des",
+                       "rc4", "speck128", "speck128gcm"]:
             # skip tests with implementations that don't support them
             if cipher == "3des" and implementation not in ("openssl",
                                                            "pycrypto"):
@@ -228,8 +228,8 @@ def serverTestCmd(argv):
 
     print("Test {0} - throughput test".format(test_no))
     for implementation in ['python']:
-        for cipher in ["aes128", "aes256", "3des",
-                       "rc4", "speck128"]:
+        for cipher in ["aes128gcm", "aes128", "aes256", "3des",
+                       "rc4", "speck128", "speck128gcm"]:
             # skip tests with implementations that don't support them
             if cipher == "3des" and implementation not in ("openssl",
                                                            "pycrypto"):

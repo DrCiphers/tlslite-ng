@@ -11,7 +11,7 @@ import hashlib
 from .constants import ContentType, CipherSuite
 from .messages import RecordHeader3, RecordHeader2, Message
 from .utils.cipherfactory import createAESGCM, createAES, createRC4, \
-        createTripleDES, createCHACHA20,createSPECK
+        createTripleDES, createCHACHA20,createSPECK, createSPECK128GCM
 from .utils.codec import Parser, Writer
 from .utils.compat import compatHMAC
 from .utils.cryptomath import getRandomBytes
@@ -390,7 +390,7 @@ class RecordLayer(object):
         buf = self._writeState.encContext.seal(nonce, buf, authData)
 
         #AES-GCM, has an explicit variable nonce.
-        if "aes" in self._writeState.encContext.name:
+        if "aes" or "speck" in self._writeState.encContext.name:
             buf = seqNumBytes + buf
 
         return buf
@@ -565,7 +565,7 @@ class RecordLayer(object):
         """Decrypt AEAD encrypted data"""
         seqnumBytes = self._readState.getSeqNumBytes()
         #AES-GCM, has an explicit variable nonce.
-        if "aes" in self._readState.encContext.name:
+        if "aes" or "speck" in self._readState.encContext.name:
             explicitNonceLength = 8
             if explicitNonceLength > len(buf):
                 #Publicly invalid.
@@ -683,10 +683,14 @@ class RecordLayer(object):
             keyLength = 0
             ivLength = 0
             createCipherFunc = None
-        elif cipherSuite in CipherSuite.SpeckSuites:
+        elif cipherSuite in CipherSuite.speckSuites:
             keyLength = 16
             ivLength = 16
             createCipherFunc = createSPECK
+        elif cipherSuite in CipherSuite.speck128GcmSuites:
+            keyLength = 16
+            ivLength = 4
+            createCipherFunc = createSPECK128GCM         
         else:
             raise AssertionError()
 
@@ -819,4 +823,3 @@ class RecordLayer(object):
             #Choose fixedIVBlock for TLS 1.1 (this is encrypted with the CBC
             #residue to create the IV for each sent block)
             self.fixedIVBlock = getRandomBytes(ivLength)
-

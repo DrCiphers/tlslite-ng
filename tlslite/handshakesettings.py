@@ -14,9 +14,9 @@ from .utils import cipherfactory
 from .utils.compat import ecdsaAllCurves
 
 CIPHER_NAMES = ["chacha20-poly1305","speck128",
-                "aes256gcm", "aes128gcm",
-                "aes256", "aes128",
-                "3des"]
+                "speck128gcm","aes256gcm", 
+                "aes128gcm", "aes256", 
+                "aes128", "3des"]
 ALL_CIPHER_NAMES = CIPHER_NAMES + ["rc4", "null"]
 MAC_NAMES = ["sha", "sha256", "aead"] # Don't allow "md5" by default.
 ALL_MAC_NAMES = MAC_NAMES + ["md5"]

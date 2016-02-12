@@ -448,6 +448,8 @@ class CipherSuite:
     TLS_DHE_RSA_WITH_SPECK_128_GCM_SHA256 = 0XFF06
     ietfNames[0XFF06] = 'TLS_DHE_RSA_WITH_SPECK_128_GCM_SHA256' 
 
+    TLS_ECDHE_RSA_WITH_SPECK_128_GCM_SHA256 = 0XFF07
+    ietfNames[0XFF07] = 'TLS_ECDHE_RSA_WITH_SPECK_128_GCM_SHA256 ' 
 
 #pylint: enable = invalid-name
     #
@@ -522,7 +524,7 @@ class CipherSuite:
     # SPECK-128 GCM ciphers
     speck128GcmSuites = []
     speck128GcmSuites.append(TLS_DHE_RSA_WITH_SPECK_128_GCM_SHA256)
-    
+    speck128GcmSuites.append(TLS_ECDHE_RSA_WITH_SPECK_128_GCM_SHA256)
     
     # RC4 128 stream cipher
     rc4Suites = []
@@ -578,6 +580,7 @@ class CipherSuite:
     sha256Suites.append(TLS_DHE_RSA_WITH_AES_128_CBC_SHA256)
     sha256Suites.append(TLS_DHE_RSA_WITH_AES_256_CBC_SHA256)
     sha256Suites.append(TLS_DHE_RSA_WITH_SPECK_128_CBC_SHA256)
+    sha256Suites.append(TLS_DHE_RSA_WITH_SPECK_128_GCM_SHA256)
     sha256Suites.append(TLS_RSA_WITH_NULL_SHA256)
     sha256Suites.append(TLS_DH_ANON_WITH_AES_128_CBC_SHA256)
     sha256Suites.append(TLS_DH_ANON_WITH_AES_256_CBC_SHA256)
@@ -770,6 +773,7 @@ class CipherSuite:
     ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384)
     ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256)
     ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_SPECK_128_CBC_SHA256)
+    ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_SPECK_128_GCM_SHA256)
     ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA)
     ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA)
     ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_SPECK_128_CBC_SHA)

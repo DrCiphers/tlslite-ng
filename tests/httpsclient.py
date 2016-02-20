@@ -5,10 +5,10 @@ from optparse import OptionParser
 
 
 settings = HandshakeSettings()
-#settings.cipherNames = ['speck']
-settings.keyExchangeNames = ['dhe_rsa']
+settings.cipherNames = ['aes128gcm']
+settings.keyExchangeNames = ['ecdhe_rsa']
 settings.cipherImplementations = ["python"]
-settings.macNames = ['sha256']
+#settings.macNames = ['sha256']
 
 settings.minVersion = (3,3)
 settings.maxVersion = (3,3)   
@@ -21,6 +21,7 @@ def main():
     parser = OptionParser(usage='%prog host [options]', description='A Simple https client used with tlslite-ng') 
     parser.add_option("--port", dest="port", help="port", default = 4443, type="int", metavar="4443")
     parser.add_option("--algo", dest="algo", help="algo", default = "speck128")
+    parser.add_option("--keyEx", dest="keyEx", help="Key Exchange", default="ecdhe_rsa")
     
     (options, arguments) = parser.parse_args()
     
@@ -28,10 +29,15 @@ def main():
         parser.print_help()
         exit(1)
         
+        
     host = arguments[0]
+    
     port = options.port   
     algo = options.algo
+    keyEx = options.keyEx
+    
     settings.cipherNames = [algo]
+    settings.keyExchangeNames = [keyEx]
     
     
     h = HTTPTLSConnection(host, port, settings=settings)    
@@ -42,4 +48,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

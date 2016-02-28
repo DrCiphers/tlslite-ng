@@ -23,6 +23,8 @@ import os.path
 import socket
 import time
 import getopt
+from tlslite.constants import CipherSuite
+
 try:
     from BaseHTTPServer import HTTPServer
     from SimpleHTTPServer import SimpleHTTPRequestHandler
@@ -116,10 +118,9 @@ def clientTestCmd(argv):
         implementations.append("pycrypto")
     implementations.append("python") 
  
-    print("Test {0} - throughput test".format(test_no))
     for implementation in ['python']:
         for cipher in ["aes128gcm", "aes128", "aes256", "3des",
-                       "rc4", "speck128", "speck128gcm"]:
+                       "rc4", "chacha20-poly1305", "speck128", "speck128gcm","speck192gcm"]:
             # skip tests with implementations that don't support them
             if cipher == "3des" and implementation not in ("openssl",
                                                            "pycrypto"):
@@ -158,9 +159,14 @@ def clientTestCmd(argv):
                 print("100K exchanged very fast")
 
             assert(h == b"hello"*10000)
+
+            print(" Used Ciphersuite: {0}".\
+                  format(CipherSuite.ietfNames[connection.session.cipherSuite]))            
+            
+            print(" ")
             connection.close()
 
-    test_no += 1
+    
 
   
 
@@ -226,10 +232,10 @@ def serverTestCmd(argv):
         implementations.append("pycrypto")
     implementations.append("python")   
 
-    print("Test {0} - throughput test".format(test_no))
+
     for implementation in ['python']:
         for cipher in ["aes128gcm", "aes128", "aes256", "3des",
-                       "rc4", "speck128", "speck128gcm"]:
+                       "rc4","chacha20-poly1305","speck128", "speck128gcm", "speck192gcm"]:
             # skip tests with implementations that don't support them
             if cipher == "3des" and implementation not in ("openssl",
                                                            "pycrypto"):
@@ -264,7 +270,6 @@ def serverTestCmd(argv):
             connection.write(h)
             connection.close()
 
-    test_no += 1
 
 
 

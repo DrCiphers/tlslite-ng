@@ -334,6 +334,9 @@ class CipherSuite:
     ietfNames[0x0035] = 'TLS_RSA_WITH_AES_256_CBC_SHA'
     TLS_RSA_WITH_RC4_128_SHA = 0x0005
     ietfNames[0x0005] = 'TLS_RSA_WITH_RC4_128_SHA'
+    TLS_ECDHE_RSA_WITH_RC4_128_SHA = 0xC011
+    ietfNames[0xC011] = 'TLS_ECDHE_RSA_WITH_RC4_128_SHA'    
+    
 
     # RFC 5246 - TLS v1.2 Protocol
     TLS_RSA_WITH_RC4_128_MD5 = 0x0004
@@ -417,6 +420,8 @@ class CipherSuite:
     TLS_DHE_RSA_WITH_CHACHA20_POLY1305 = 0xcca3
     ietfNames[0xcca3] = 'TLS_DHE_RSA_WITH_CHACHA20_POLY1305'
 
+    TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305 = 0xcc13
+    ietfNames[0xcc13] = 'TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305'
 
     # RFC 5289 - ECC Ciphers with SHA-256/SHA284 HMAC and AES-GCM
     TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256 = 0xC027
@@ -449,7 +454,11 @@ class CipherSuite:
     ietfNames[0XFF06] = 'TLS_DHE_RSA_WITH_SPECK_128_GCM_SHA256' 
 
     TLS_ECDHE_RSA_WITH_SPECK_128_GCM_SHA256 = 0XFF07
-    ietfNames[0XFF07] = 'TLS_ECDHE_RSA_WITH_SPECK_128_GCM_SHA256 ' 
+    ietfNames[0XFF07] = 'TLS_ECDHE_RSA_WITH_SPECK_128_GCM_SHA256' 
+    
+    TLS_ECDHE_RSA_WITH_SPECK_192_GCM_SHA256 = 0XFF08
+    ietfNames[0XFF08] = 'TLS_ECDHE_RSA_WITH_SPECK_192_GCM_SHA256' 
+    
 
 #pylint: enable = invalid-name
     #
@@ -510,7 +519,7 @@ class CipherSuite:
     # CHACHA20 cipher (implicit POLY1305 authenticator)
     chacha20Suites = []
     chacha20Suites.append(TLS_DHE_RSA_WITH_CHACHA20_POLY1305)
-
+    chacha20Suites.append(TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305)
 
     # SPECK 128 ciphers
     speckSuites = []
@@ -526,10 +535,16 @@ class CipherSuite:
     speck128GcmSuites.append(TLS_DHE_RSA_WITH_SPECK_128_GCM_SHA256)
     speck128GcmSuites.append(TLS_ECDHE_RSA_WITH_SPECK_128_GCM_SHA256)
     
+    #SPECK-192 GCM ciphers
+    speck192GcmSuites = []
+    speck192GcmSuites.append(TLS_ECDHE_RSA_WITH_SPECK_192_GCM_SHA256)
+    
+    
     # RC4 128 stream cipher
     rc4Suites = []
     rc4Suites.append(TLS_DH_ANON_WITH_RC4_128_MD5)
     rc4Suites.append(TLS_RSA_WITH_RC4_128_SHA)
+    rc4Suites.append(TLS_ECDHE_RSA_WITH_RC4_128_SHA)
     rc4Suites.append(TLS_RSA_WITH_RC4_128_MD5)
     rc4Suites.append(TLS_ECDH_ANON_WITH_RC4_128_SHA)
 
@@ -554,6 +569,7 @@ class CipherSuite:
     shaSuites.append(TLS_RSA_WITH_AES_256_CBC_SHA)
     shaSuites.append(TLS_RSA_WITH_SPECK_128_CBC_SHA)
     shaSuites.append(TLS_RSA_WITH_RC4_128_SHA)
+    shaSuites.append(TLS_ECDHE_RSA_WITH_RC4_128_SHA)
     shaSuites.append(TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA)
     shaSuites.append(TLS_DHE_RSA_WITH_AES_128_CBC_SHA)
     shaSuites.append(TLS_DHE_RSA_WITH_AES_256_CBC_SHA)
@@ -603,6 +619,8 @@ class CipherSuite:
     aeadSuites.extend(aes256GcmSuites)
     aeadSuites.extend(chacha20Suites)
     aeadSuites.extend(speck128GcmSuites)
+    aeadSuites.extend(speck192GcmSuites)
+    
 
     # TLS1.2 with SHA384 PRF
     sha384PrfSuites = []
@@ -673,7 +691,9 @@ class CipherSuite:
         if "speck128" in cipherNames:
             cipherSuites += CipherSuite.speckSuites  
         if "speck128gcm" in cipherNames and version >= (3, 3):
-            cipherSuites += CipherSuite.speck128GcmSuites        
+            cipherSuites += CipherSuite.speck128GcmSuites   
+        if "speck192gcm" in cipherNames and version >= (3, 3):
+            cipherSuites += CipherSuite.speck192GcmSuites               
         if "null" in cipherNames:
             cipherSuites += CipherSuite.nullSuites
 
@@ -776,7 +796,10 @@ class CipherSuite:
     ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_SPECK_128_GCM_SHA256)
     ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA)
     ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA)
+    ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_RC4_128_SHA)
     ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_SPECK_128_CBC_SHA)
+    ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_SPECK_192_GCM_SHA256)
+    ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305)    
     ecdheCertSuites.append(TLS_ECDHE_RSA_WITH_NULL_SHA)
 
     @classmethod

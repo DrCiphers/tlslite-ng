@@ -11,7 +11,7 @@ import hashlib
 from .constants import ContentType, CipherSuite
 from .messages import RecordHeader3, RecordHeader2, Message
 from .utils.cipherfactory import createAESGCM, createAES, createRC4, \
-        createTripleDES, createCHACHA20,createSPECK, createSPECK128GCM
+        createTripleDES, createCHACHA20,createSPECK, createSPECK128GCM, createSPECK192GCM
 from .utils.codec import Parser, Writer
 from .utils.compat import compatHMAC
 from .utils.cryptomath import getRandomBytes
@@ -690,7 +690,11 @@ class RecordLayer(object):
         elif cipherSuite in CipherSuite.speck128GcmSuites:
             keyLength = 16
             ivLength = 4
-            createCipherFunc = createSPECK128GCM         
+            createCipherFunc = createSPECK128GCM     
+        elif cipherSuite in CipherSuite.speck192GcmSuites:
+            keyLength = 24
+            ivLength = 4
+            createCipherFunc = createSPECK192GCM                 
         else:
             raise AssertionError()
 
@@ -823,3 +827,4 @@ class RecordLayer(object):
             #Choose fixedIVBlock for TLS 1.1 (this is encrypted with the CBC
             #residue to create the IV for each sent block)
             self.fixedIVBlock = getRandomBytes(ivLength)
+

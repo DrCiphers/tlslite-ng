@@ -13,6 +13,7 @@ from tlslite.utils import python_chacha20_poly1305
 from tlslite.utils import python_rc4
 from tlslite.utils import python_speck
 from tlslite.utils import python_speck128gcm
+from tlslite.utils import python_speck192gcm
 
 from tlslite.utils import cryptomath
 
@@ -114,6 +115,24 @@ def createSPECK128GCM(key, implList=None):
     for impl in implList:
         if impl == "python":
             return python_speck128gcm.new(key)
+    raise NotImplementedError()
+
+
+def createSPECK192GCM(key, implList=None):
+    """Create a new SPECKGCM object.
+
+    @type key: bytearray
+    @param key: A 16 or 32 byte byte array.
+
+    @rtype: L{tlslite.utils.AESGCM}
+    @return: An AESGCM object.
+    """
+    if implList is None:
+        implList = ["python"]
+
+    for impl in implList:
+        if impl == "python":
+            return python_speck192gcm.new(key)
     raise NotImplementedError()
 
 

@@ -150,15 +150,15 @@ def clientTestCmd(argv):
             print("%s %s:" % (connection.getCipherName(), connection.getCipherImplementation()), end=' ')
 
             startTime = time.clock()
-            connection.write(b"hello"*10000)
-            h = connection.read(min=50000, max=50000)
+            connection.write(b"hello"*100000)
+            h = connection.read(min=500000, max=500000)
             stopTime = time.clock()
             if stopTime-startTime:
-                print("100K exchanged at rate of %d bytes/sec" % int(100000/(stopTime-startTime)))
+                print("1MB exchanged at rate of %d bytes/sec" % int(1000000/(stopTime-startTime)))
             else:
-                print("100K exchanged very fast")
+                print("1MB exchanged very fast")
 
-            assert(h == b"hello"*10000)
+            assert(h == b"hello"*100000)
 
             print(" Used Ciphersuite: {0}".\
                   format(CipherSuite.ietfNames[connection.session.cipherSuite]))            
@@ -265,8 +265,8 @@ def serverTestCmd(argv):
             connection.handshakeServer(certChain=x509Chain, privateKey=x509Key,
                                         settings=settings)
             print(connection.getCipherName(), connection.getCipherImplementation())
-            h = connection.read(min=50000, max=50000)
-            assert(h == b"hello"*10000)
+            h = connection.read(min=500000, max=500000)
+            assert(h == b"hello"*100000)
             connection.write(h)
             connection.close()
 

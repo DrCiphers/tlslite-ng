@@ -96,13 +96,13 @@ def clientTestCmd(argv):
 
     #open synchronisation FIFO
     synchro = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    synchro.settimeout(5)
+    synchro.settimeout(25)
     synchro.connect((address[0], address[1]-1))
 
     def connect():
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         if hasattr(sock, 'settimeout'): #It's a python 2.3 feature
-            sock.settimeout(5)
+            sock.settimeout(25)
         sock.connect(address)
         c = TLSConnection(sock)
         return c

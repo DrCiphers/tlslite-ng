@@ -46,7 +46,7 @@ class AESGCM(object):
         # x^1 * h is at index 0b0100 = 4.
         self._productTable = [0] * 16
         self._productTable[self._reverseBits(1)] = h
-        for i in range(2, 16, 2):
+        for i in xrange(2, 16, 2):
             self._productTable[self._reverseBits(i)] = \
                 self._gcmShift(self._productTable[self._reverseBits(i//2)])
             self._productTable[self._reverseBits(i+1)] = \
@@ -57,10 +57,12 @@ class AESGCM(object):
         Encrypts (or decrypts) plaintext with AES-CTR. counter is modified.
         """
         out = bytearray(len(inp))
+        
         rawAesEncrypt = self._rawAesEncrypt
-        for i in range(0, len(out), 16):
+        
+        for i in xrange(0, len(out), 16):
             mask = rawAesEncrypt(counter)
-            for j in range(i, min(len(out), i + 16)):
+            for j in xrange(i, min(len(out), i + 16)):
                 out[j] = inp[j] ^ mask[j-i]
             self._inc32(counter)
         return out
@@ -75,7 +77,7 @@ class AESGCM(object):
         return numberToByteArray(y, 16)
 
     def _update(self, y, data):
-        for i in range(0, len(data) // 16):
+        for i in xrange(0, len(data) // 16):
             y ^= bytesToNumber(data[16*i:16*i+16])
             y = self._mul(y)
         extra = len(data) % 16
@@ -91,7 +93,7 @@ class AESGCM(object):
         ret = 0
         # Multiply H by y 4 bits at a time, starting with the highest power
         # terms.
-        for i in range(0, 128, 4):
+        for i in xrange(0, 128, 4):
             # Multiply by x^4. The reduction for the top four terms is
             # precomputed.
             retHigh = ret & 0xf
@@ -184,7 +186,7 @@ class AESGCM(object):
 
     @staticmethod
     def _inc32(counter):
-        for i in range(len(counter)-1, len(counter)-5, -1):
+        for i in xrange(len(counter)-1, len(counter)-5, -1):
             counter[i] = (counter[i] + 1) % 256
             if counter[i] != 0:
                 break

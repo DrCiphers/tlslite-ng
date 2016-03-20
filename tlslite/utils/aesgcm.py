@@ -46,6 +46,7 @@ class AESGCM(object):
         # x^1 * h is at index 0b0100 = 4.
         self._productTable = [0] * 16
         self._productTable[self._reverseBits(1)] = h
+        
         for i in xrange(2, 16, 2):
             self._productTable[self._reverseBits(i)] = \
                 self._gcmShift(self._productTable[self._reverseBits(i//2)])
@@ -59,12 +60,13 @@ class AESGCM(object):
         out = bytearray(len(inp))
         
         rawAesEncrypt = self._rawAesEncrypt
+        inc32 = self._inc32
         
         for i in xrange(0, len(out), 16):
             mask = rawAesEncrypt(counter)
             for j in xrange(i, min(len(out), i + 16)):
                 out[j] = inp[j] ^ mask[j-i]
-            self._inc32(counter)
+            inc32(counter)
         return out
 
     def _auth(self, ciphertext, ad, tagMask):
@@ -93,17 +95,20 @@ class AESGCM(object):
         ret = 0
         # Multiply H by y 4 bits at a time, starting with the highest power
         # terms.
+        productTable = self._productTable
+        gcmReductionTable = AESGCM._gcmReductionTable
+         
         for i in xrange(0, 128, 4):
             # Multiply by x^4. The reduction for the top four terms is
             # precomputed.
             retHigh = ret & 0xf
             ret >>= 4
-            ret ^= (AESGCM._gcmReductionTable[retHigh] << (128-16))
+            ret ^= (gcmReductionTable[retHigh] << 112) # 128 - 16 
 
             # Add in y' * H where y' are the next four terms of y, shifted down
             # to the x^0..x^4. This is one of the pre-computed multiples of
             # H. The multiplication by x^4 shifts them back into place.
-            ret ^= self._productTable[y & 0xf]
+            ret ^= productTable[y & 0xf]
             y >>= 4
         assert y == 0
         return ret

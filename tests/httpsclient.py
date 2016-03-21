@@ -18,7 +18,7 @@ settings.useExperimentalTackExtension = True
 
 def main():
 
-    parser = OptionParser(usage='%prog host [options]', description='A Simple https client used with tlslite-ng') 
+    parser = OptionParser(usage='%prog host filename [options]', description='A Simple https client used with tlslite-ng') 
     parser.add_option("--port", dest="port", help="port", default = 4443, type="int", metavar="4443")
     parser.add_option("--algo", dest="algo", help="algo", default = "speck128")
     parser.add_option("--keyEx", dest="keyEx", help="Key Exchange", default="ecdhe_rsa")
@@ -31,6 +31,12 @@ def main():
         
         
     host = arguments[0]
+        
+    if (len(arguments)==1):
+        filename="index.html"
+    else:
+        filename = arguments[1]
+    
     
     port = options.port   
     algo = options.algo
@@ -41,7 +47,7 @@ def main():
     
     
     h = HTTPTLSConnection(host, port, settings=settings)    
-    h.request("GET", "/index.html")
+    h.request("GET", filename)
     r = h.getresponse()
     print(r.read())
 

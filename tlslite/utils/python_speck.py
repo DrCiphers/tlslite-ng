@@ -3,9 +3,7 @@
 #   Efthimios Iosifidis
 #
 # See the LICENSE file for legal information regarding use of this file.
-
-import time
-  
+ 
 def new(key, IV):
     return Python_SPECK(key, IV)
 
@@ -122,19 +120,16 @@ class Python_SPECK():
             blockBytesNum = self.bytesToNumber(blockBytes)
 
             
-            b = (blockBytesNum >> self.word_size) & mod_mask
+            b = (blockBytesNum >> 64) & mod_mask   # blockBytesNum >> self.wordsize 
             a = blockBytesNum & mod_mask            
            
             keyschedule = self.key_schedule
             encrypt = self.encrypt_round
             
-            #start_time = time.time()
             for i in keyschedule:
                 b, a = encrypt(b, a, i) 
-
-            #print("SPECK SPECK %s"%(time.time()-start_time))
-                
-            ciphertext = (b << self.word_size) | a                             
+               
+            ciphertext = (b << 64) | a           # b << self.wordsize                      
             ciphertext= self.numberToByteArray(ciphertext) 
                         
             #Overwrite the input with the output
@@ -156,13 +151,15 @@ class Python_SPECK():
 
         mod_mask = 18446744073709551615L
 
+        ciphertextconverted = self.bytesToNumber
+        
         #CBC Mode: For each block...
         for x in xrange(len(ciphertextBytes)//16):
 
             #Decrypt it
             blockBytes = ciphertextBytes[x*16 : (x*16)+16]
                
-            ciphertext = self.bytesToNumber(blockBytes)
+            ciphertext = ciphertextconverted(blockBytes)
         
             b = (ciphertext >> self.word_size) & mod_mask
             a = ciphertext & mod_mask       

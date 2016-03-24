@@ -3,8 +3,8 @@
 #   Efthimios Iosifidis
 #
 # See the LICENSE file for legal information regarding use of this file.
-import time
- 
+
+
 def new(key, IV):
     return Python_SPECK(key, IV)
 
@@ -114,8 +114,6 @@ class Python_SPECK():
         keyschedule = self.key_schedule
         encryptround = self.encrypt_round  
 
-        starttime = time.clock()
-        
         #CBC Mode: For each block...
         for x in xrange(len(plaintextBytes)//16):
             

@@ -3,6 +3,7 @@
 #   Efthimios Iosifidis
 #
 # See the LICENSE file for legal information regarding use of this file.
+import time
  
 def new(key, IV):
     return Python_SPECK(key, IV)
@@ -21,14 +22,12 @@ class Python_SPECK():
         
         #convert the key bytesarray to int
         self.key = self.bytesToNumber(key)
-        
         self.IV = IV
-        self.rounds = 32
-        self.word_size = 64         # alpha_shift = 8 , beta_shift = 3
+        
 
         
         # Create Properly Sized bit mask for truncating addition and left shift outputs          
-        self.mod_mask = (2 ** self.word_size) - 1 
+        self.mod_mask = (2 ** 64) - 1  # word_size = 64    alpha_shift = 8 , beta_shift = 3
         
         
         
@@ -42,10 +41,12 @@ class Python_SPECK():
 
         # Pre-compile key schedule
         self.key_schedule = [self.key & self.mod_mask]
-        l_schedule = [(self.key >> (x * self.word_size)) & self.mod_mask for x in xrange(1, 128 // self.word_size)]
+        l_schedule = [(self.key >> (x * 64)) & self.mod_mask for x in xrange(1, 128 // 64)]
 
-        for x in xrange(self.rounds - 1):
-            new_l_k = self.encrypt_round(l_schedule[x], self.key_schedule[x], x)
+        encrypt_round = self.encrypt_round
+        
+        for x in xrange(31): # rounds - 1 
+            new_l_k = encrypt_round(l_schedule[x], self.key_schedule[x], x)
             l_schedule.append(new_l_k[0])
             self.key_schedule.append(new_l_k[1])
         
@@ -108,30 +109,33 @@ class Python_SPECK():
         mod_mask = 18446744073709551615L
         
 
+        bytesToNumber = self.bytesToNumber
+        numberToByteArray = self.numberToByteArray
+        keyschedule = self.key_schedule
+        encryptround = self.encrypt_round  
+
+        starttime = time.clock()
+        
         #CBC Mode: For each block...
         for x in xrange(len(plaintextBytes)//16):
-
+            
             #XOR with the chaining block
             blockBytes = plaintextBytes[x*16 : (x*16)+16]
         
             for y in xrange(16):
                 blockBytes[y] ^= chainBytes[y]
                
-            blockBytesNum = self.bytesToNumber(blockBytes)
+            blockBytesNum = bytesToNumber(blockBytes)
 
-            
             b = (blockBytesNum >> 64) & mod_mask   # blockBytesNum >> self.wordsize 
-            a = blockBytesNum & mod_mask            
-           
-            keyschedule = self.key_schedule
-            encrypt = self.encrypt_round
+            a = blockBytesNum & mod_mask           
             
             for i in keyschedule:
-                b, a = encrypt(b, a, i) 
-               
+                b, a = encryptround(b, a, i) 
+        
             ciphertext = (b << 64) | a           # b << self.wordsize                      
-            ciphertext= self.numberToByteArray(ciphertext) 
-                        
+            ciphertext= numberToByteArray(ciphertext)           
+            
             #Overwrite the input with the output
             for y in xrange(16):
                 plaintextBytes[(x*16)+y] = ciphertext[y]
@@ -140,6 +144,7 @@ class Python_SPECK():
             chainBytes = ciphertext
 
         self.IV = chainBytes[:]
+        
         return bytearray(plaintextBytes)
            
 
@@ -151,27 +156,27 @@ class Python_SPECK():
 
         mod_mask = 18446744073709551615L
 
-        ciphertextconverted = self.bytesToNumber
-        
+        bytesToNumber = self.bytesToNumber
+        numberToByteArray = self.numberToByteArray
+        decryptround = self.decrypt_round
+        key_schedule = self.key_schedule        
+
         #CBC Mode: For each block...
         for x in xrange(len(ciphertextBytes)//16):
 
             #Decrypt it
             blockBytes = ciphertextBytes[x*16 : (x*16)+16]
                
-            ciphertext = ciphertextconverted(blockBytes)
+            ciphertext = bytesToNumber(blockBytes)
         
-            b = (ciphertext >> self.word_size) & mod_mask
+            b = (ciphertext >> 64) & mod_mask
             a = ciphertext & mod_mask       
-           
-            decrypt = self.decrypt_round
-            
-            for i in reversed(self.key_schedule):
-                b, a = decrypt(b, a, i)
+              
+            for i in reversed(key_schedule):
+                b, a = decryptround(b, a, i)
           
-            plaintext = (b << self.word_size) | a    
-                
-            plaintext = self.numberToByteArray(plaintext)  
+            plaintext = (b << 64) | a                 
+            plaintext = numberToByteArray(plaintext)  
             
             #XOR with the chaining block and overwrite the input with output
             for y in xrange(16):
@@ -182,4 +187,5 @@ class Python_SPECK():
             chainBytes = blockBytes
 
         self.IV = chainBytes[:]
+        
         return bytearray(ciphertextBytes)

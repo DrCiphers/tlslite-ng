@@ -4,6 +4,7 @@
 """Pure-Python AES implementation."""
 
 from .cryptomath import *
+import time
 
 from .aes import *
 from .rijndael import rijndael
@@ -23,25 +24,31 @@ class Python_AES(AES):
         plaintextBytes = plaintext[:]
         chainBytes = self.IV[:]
 
+        encrypt = self.rijndael.encrypt
+        
+        starttime = time.clock()
+        
         #CBC Mode: For each block...
-        for x in range(len(plaintextBytes)//16):
-
+        for x in xrange(len(plaintextBytes)//16):
+ 
             #XOR with the chaining block
             blockBytes = plaintextBytes[x*16 : (x*16)+16]
-            for y in range(16):
+            for y in xrange(16):
                 blockBytes[y] ^= chainBytes[y]
-
+                
             #Encrypt it
-            encryptedBytes = self.rijndael.encrypt(blockBytes)
-
+            encryptedBytes = encrypt(blockBytes)
+       
             #Overwrite the input with the output
-            for y in range(16):
+            for y in xrange(16):
                 plaintextBytes[(x*16)+y] = encryptedBytes[y]
+
 
             #Set the next chaining block
             chainBytes = encryptedBytes
 
         self.IV = chainBytes[:]
+
         return plaintextBytes
 
     def decrypt(self, ciphertext):
@@ -50,20 +57,24 @@ class Python_AES(AES):
         ciphertextBytes = ciphertext[:]
         chainBytes = self.IV[:]
 
+
+        decrypt = self.rijndael.decrypt
+                
         #CBC Mode: For each block...
-        for x in range(len(ciphertextBytes)//16):
+        for x in xrange(len(ciphertextBytes)//16):
 
             #Decrypt it
             blockBytes = ciphertextBytes[x*16 : (x*16)+16]
-            decryptedBytes = self.rijndael.decrypt(blockBytes)
+            decryptedBytes = decrypt(blockBytes)
 
             #XOR with the chaining block and overwrite the input with output
-            for y in range(16):
+            for y in xrange(16):
                 decryptedBytes[y] ^= chainBytes[y]
                 ciphertextBytes[(x*16)+y] = decryptedBytes[y]
 
             #Set the next chaining block
             chainBytes = blockBytes
 
-        self.IV = chainBytes[:]
+        self.IV = chainBytes[:]    
+        
         return ciphertextBytes

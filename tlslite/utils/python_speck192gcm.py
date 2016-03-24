@@ -51,7 +51,7 @@ class SPECK192GCM(object):
         
         
         # Create Properly Sized bit mask for truncating addition and left shift outputs          
-        self.mod_mask = (2 ** self.word_size) - 1 
+        self.mod_mask = (2 ** 64) - 1 
         
         
         
@@ -67,7 +67,7 @@ class SPECK192GCM(object):
         self.key_schedule = [self.key & self.mod_mask]
         l_schedule = [(self.key >> (x * self.word_size)) & self.mod_mask for x in xrange(1, 192 // self.word_size)]
         
-        for x in xrange(self.rounds - 1):
+        for x in xrange(32):  #rounds - 1
             new_l_k = self.encrypt_round(l_schedule[x], self.key_schedule[x], x)
             l_schedule.append(new_l_k[0])
             self.key_schedule.append(new_l_k[1])
@@ -96,13 +96,12 @@ class SPECK192GCM(object):
         out = bytearray(len(inp))
         
         encrypt = self.encrypt
-        
+        inc32 = self._inc32
         for i in xrange(0, len(out), 16):
             mask = encrypt(counter)
-            
             for j in xrange(i, min(len(out), i + 16)):
                 out[j] = inp[j] ^ mask[j-i]
-            self._inc32(counter)
+            inc32(counter)
         return out
 
     def _auth(self, ciphertext, ad, tagMask):
@@ -131,17 +130,19 @@ class SPECK192GCM(object):
         ret = 0
         # Multiply H by y 4 bits at a time, starting with the highest power
         # terms.
+        gcmReductionTable = SPECK192GCM._gcmReductionTable
+        productTable = self._productTable
         for i in xrange(0, 128, 4):
             # Multiply by x^4. The reduction for the top four terms is
             # precomputed.
             retHigh = ret & 0xf
             ret >>= 4
-            ret ^= (SPECK192GCM._gcmReductionTable[retHigh] << (128-16))
+            ret ^= (gcmReductionTable[retHigh] << 112) # 128 - 16
 
             # Add in y' * H where y' are the next four terms of y, shifted down
             # to the x^0..x^4. This is one of the pre-computed multiples of
             # H. The multiplication by x^4 shifts them back into place.
-            ret ^= self._productTable[y & 0xf]
+            ret ^= productTable[y & 0xf]
             y >>= 4
         assert y == 0
         return ret

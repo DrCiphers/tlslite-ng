@@ -4,7 +4,7 @@
 #
 # See the LICENSE file for legal information regarding use of this file.
 
-
+ 
 def new(key, IV):
     return Python_SPECK(key, IV)
 
@@ -36,7 +36,6 @@ class Python_SPECK():
             self.key = self.key & ((2 ** 128) - 1)
         except (ValueError, TypeError):
             print('Invalid Key Value!')
-            print('Please Provide Key as int')
             raise
 
         # Pre-compile key schedule
@@ -44,11 +43,12 @@ class Python_SPECK():
         l_schedule = [(self.key >> (x * 64)) & self.mod_mask for x in xrange(1, 128 // 64)]
 
         encrypt_round = self.encrypt_round
+        key_schedule = self.key_schedule
         
         for x in xrange(31): # rounds - 1 
-            new_l_k = encrypt_round(l_schedule[x], self.key_schedule[x], x)
+            new_l_k = encrypt_round(l_schedule[x], key_schedule[x], x)
             l_schedule.append(new_l_k[0])
-            self.key_schedule.append(new_l_k[1])
+            key_schedule.append(new_l_k[1])
         
 
     def bytesToNumber(self,b):
@@ -113,7 +113,7 @@ class Python_SPECK():
         numberToByteArray = self.numberToByteArray
         keyschedule = self.key_schedule
         encryptround = self.encrypt_round  
-
+       
         #CBC Mode: For each block...
         for x in xrange(len(plaintextBytes)//16):
             

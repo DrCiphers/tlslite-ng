@@ -51,7 +51,7 @@ class SPECK128GCM(object):
         
         
         # Create Properly Sized bit mask for truncating addition and left shift outputs          
-        self.mod_mask = (2 ** self.word_size) - 1 
+        self.mod_mask = (2 ** 64) - 1  # 2 ^ word_size  - 1 
         
         
         
@@ -65,12 +65,13 @@ class SPECK128GCM(object):
         
         # Pre-compile key schedule
         self.key_schedule = [self.key & self.mod_mask]
-        l_schedule = [(self.key >> (x * self.word_size)) & self.mod_mask for x in xrange(1, 128 // self.word_size)]
+        l_schedule = [(self.key >> (x * 64)) & self.mod_mask for x in xrange(1, 128 // 64)] # x*64 represents the x* word_size 
         
+        key_schedule = self.key_schedule
         for x in xrange(31):  # rounds - 1 
-            new_l_k = self.encrypt_round(l_schedule[x], self.key_schedule[x], x)
+            new_l_k = self.encrypt_round(l_schedule[x], key_schedule[x], x)
             l_schedule.append(new_l_k[0])
-            self.key_schedule.append(new_l_k[1])
+            key_schedule.append(new_l_k[1])
 
 
         encrypt = self.encrypt
@@ -269,7 +270,7 @@ class SPECK128GCM(object):
         blockBytesNum = bytesToNumber(plaintext)
 
 
-        b = (blockBytesNum >> self.word_size) & mod_mask
+        b = (blockBytesNum >> 64) & mod_mask  # shift by word_size 64
         a = blockBytesNum & mod_mask            
 
         keyschedule = self.key_schedule
@@ -278,7 +279,7 @@ class SPECK128GCM(object):
         for i in keyschedule:
             b, a = encrypt(b, a, i) 
 
-        ciphertext = (b << self.word_size) | a                             
+        ciphertext = (b << 64) | a            # shift by word_size 64                         
         plaintextBytes= numberToByteArray(ciphertext,16) 
 
 
@@ -291,7 +292,7 @@ class SPECK128GCM(object):
 
         ciphertext = bytesToNumber(ciphertext)
 
-        b = (ciphertext >> self.word_size) & mod_mask
+        b = (ciphertext >> 64) & mod_mask   # shift by word_size 64
         a = ciphertext & mod_mask       
 
         decrypt = self.decrypt_round
@@ -300,7 +301,7 @@ class SPECK128GCM(object):
         for i in reversed(key_schedule):
             b, a = decrypt(b, a, i)
 
-        plaintext = (b << self.word_size) | a    
+        plaintext = (b << 64) | a          # shift by word_size 64
 
         plaintext = numberToByteArray(plaintext,16)  
    

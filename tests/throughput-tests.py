@@ -68,24 +68,24 @@ Commands:
     sys.exit(-1)
     
 
-def dataRandomizer(filesize):
+def dataRandomizer(datasize):
     
-    if filesize == "4MB":    
+    if datasize == "4MB":    
         data = os.urandom(2000000)
     
-    elif filesize == "2MB":
+    elif datasize == "2MB":
         data = os.urandom(1000000)
         
-    elif filesize == "1MB":
+    elif datasize == "1MB":
         data = os.urandom(500000)
         
-    elif filesize == "500k":
+    elif datasize == "500k":
         data = os.urandom(250000)
     
-    elif filesize == "100k":
+    elif datasize == "100k":
         data = os.urandom(50000)
     
-    elif filesize == "2k":
+    elif datasize == "2k":
         data = os.urandom(1000)
     else:
         return 0

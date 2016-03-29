@@ -2,8 +2,10 @@
 
 # Authors: 
 #   Trevor Perrin
-#   Hubert Kario - several improvements
-#   Efthimios Iosifidis - Added Speck Cipher 
+#   Hubert Kario 
+#   Efthimios Iosifidis - Based on the code from the initial authors
+#   transformed the test file in order to perfom throughput tests amongst the AES, the RC4,
+#   the Chacha20 and the Speck Cipher 
 #   
 # See the LICENSE file for legal information regarding use of this file.
 

@@ -2,12 +2,7 @@
 
 # Authors: 
 #   Trevor Perrin
-#   Kees Bos - Added tests for XML-RPC
-#   Dimitris Moraitis - Anon ciphersuites
-#   Marcelo Fernandez - Added test for NPN
-#   Martin von Loewis - python 3 port
 #   Hubert Kario - several improvements
-#   Google - FALLBACK_SCSV test
 #   Efthimios Iosifidis - Added Speck Cipher 
 #   
 # See the LICENSE file for legal information regarding use of this file.
@@ -71,19 +66,30 @@ Commands:
     sys.exit(-1)
     
 
-def testConnClient(conn):
-    b1 = os.urandom(1)
-    b10 = os.urandom(10)
-    b100 = os.urandom(100)
-    b1000 = os.urandom(1000)
-    conn.write(b1)
-    conn.write(b10)
-    conn.write(b100)
-    conn.write(b1000)
-    assert(conn.read(min=1, max=1) == b1)
-    assert(conn.read(min=10, max=10) == b10)
-    assert(conn.read(min=100, max=100) == b100)
-    assert(conn.read(min=1000, max=1000) == b1000)
+def dataRandomizer(filesize):
+    
+    if filesize == "4MB":    
+        data = os.urandom(2000000)
+    
+    elif filesize == "2MB":
+        data = os.urandom(1000000)
+        
+    elif filesize == "1MB":
+        data = os.urandom(500000)
+        
+    elif filesize == "500k":
+        data = os.urandom(250000)
+    
+    elif filesize == "100k":
+        data = os.urandom(50000)
+    
+    elif filesize == "2k":
+        data = os.urandom(1000)
+    else:
+        return 0
+        
+    return  data
+
 
 def clientTestCmd(argv):
     
@@ -113,128 +119,107 @@ def clientTestCmd(argv):
 
     badFault = False
  
-    implementations = ["python"]
-
-    for implementation in ['python']:
-        for cipher in ["aes128gcm", "aes128", "aes256", "3des",
-                       "rc4", "chacha20-poly1305", "speck128", "speck128gcm","speck192gcm"]:
-            # skip tests with implementations that don't support them
-            if cipher == "3des" and implementation not in ("openssl",
-                                                           "pycrypto"):
-                continue
-            if cipher in ("aes128gcm", "aes256gcm") and \
-                    implementation not in ("pycrypto",
-                                           "python"):
-                continue
-            if cipher in ("chacha20-poly1305", ) and \
-                    implementation not in ("python", ):
-                continue
-            
-            if cipher == "speck128" and \
-                    implementation not in ("python"):
-                continue            
-
-            test_no += 1
-
-            print("Test {0}:".format(test_no), end=' ')
-            synchro.recv(1)
-            connection = connect()
-
-            settings = HandshakeSettings()
-            settings.cipherNames = [cipher]
-            settings.cipherImplementations = [implementation, "python"]
-            connection.handshakeClientCert(settings=settings)
-            print("%s %s:" % (connection.getCipherName(), connection.getCipherImplementation()), end=' ')
-       
-            
-            if datasize == "4MB":
-                startTime = time.clock()
-                connection.write(b"hello"*400000)
-                h = connection.read(min=2000000, max=2000000)          
-                stopTime = time.clock()
-                
-                if stopTime-startTime:
-                    print("4MB exchanged at rate of %d bytes/sec" % int(4000000/(stopTime-startTime)))
-                else:
-                    print("4MB exchanged very fast")
- 
-                assert(h == b"hello"*400000)            
-            
-            elif datasize == "2MB":
-                startTime = time.clock()
-                connection.write(b"hello"*200000)
-                h = connection.read(min=1000000, max=1000000)
-                stopTime = time.clock()                
-
-                if stopTime-startTime:
-                    print("2MB exchanged at rate of %d bytes/sec" % int(2000000/(stopTime-startTime)))
-                else:
-                    print("2MB exchanged very fast")
-                
-                assert(h == b"hello"*200000)
-                
-            elif datasize == "1MB": 
-                startTime = time.clock()
-                connection.write(b"hello"*100000)
-                h = connection.read(min=500000, max=500000)
-                stopTime = time.clock()
-                if stopTime-startTime:
-                    print("1MB exchanged at rate of %d bytes/sec" % int(1000000/(stopTime-startTime)))
-                else:
-                    print("1MB exchanged very fast")
-            
-                assert(h == b"hello"*100000)                
-
-            elif datasize == "500k":
-                startTime = time.clock()
-                connection.write(b"hello"*50000)
-                h = connection.read(min=250000, max=250000)
-                stopTime = time.clock()
-                
-                if stopTime-startTime:
-                    print("500kbytes exchanged at rate of %d bytes/sec" % int(500000/(stopTime-startTime)))
-                else:
-                    print("500kbytes exchanged very fast")
+    message = dataRandomizer(datasize) 
     
-                assert(h == b"hello"*50000)                                               
-             
-            elif datasize == "100k":
-                startTime = time.clock()
-                connection.write(b"hello"*10000)
-                h = connection.read(min=50000, max=50000)
-                stopTime = time.clock()
-                
-                if stopTime-startTime:
-                    print("100kBytes exchanged at rate of %d bytes/sec" % int(100000/(stopTime-startTime)))
-                else:
-                    print("100kBytes exchanged very fast")
-                
-                assert(h == b"hello"*10000)                
-                
-            elif datasize == "2k":  
-                startTime = time.clock()
-                connection.write(b"hello"*200)
-                h = connection.read(min=1000, max=1000)
-                stopTime = time.clock()
-                
-                if stopTime-startTime:
-                    print("2kBytes exchanged at rate of %d bytes/sec" % int(2000/(stopTime-startTime)))
-                else:
-                    print("2kBytes exchanged very fast")
+    for cipher in ["aes128gcm", "aes128", "aes256",
+                       "rc4", "chacha20-poly1305", "speck128", "speck128gcm","speck192gcm"]:                   
+        test_no += 1
+
+        print("Test {0}:".format(test_no), end=' ')
+        synchro.recv(1)
+        connection = connect()
+
+        settings = HandshakeSettings()
+        settings.cipherNames = [cipher]
+        settings.cipherImplementations = ["python"]
+        connection.handshakeClientCert(settings=settings)
+        print("%s %s:" % (connection.getCipherName(), connection.getCipherImplementation()), end=' ')
+       
+          
             
-                assert(h == b"hello"*200)                
+        if datasize == "4MB":
+            startTime = time.clock()
                 
+            #send a random message of size 4MB
+            connection.write(message)
+            h = connection.read(min=2000000, max=2000000)          
+            stopTime = time.clock()
+            if stopTime-startTime:
+                print("4MB exchanged at rate of %d bytes/sec" % int(4000000/(stopTime-startTime)))
             else:
-                print("Datasize not supported or syntax error! Exiting...")
-                exit(1)
+                print("4MB exchanged very fast")
+            assert(h == message)            
+            
+        elif datasize == "2MB":
+            startTime = time.clock()
+            connection.write(message)
+            h = connection.read(min=1000000, max=1000000)
+            stopTime = time.clock()                
+            if stopTime-startTime:
+                print("2MB exchanged at rate of %d bytes/sec" % int(2000000/(stopTime-startTime)))
+            else:
+                print("2MB exchanged very fast")
+                
+            assert(h == message)
+                
+        elif datasize == "1MB": 
+            startTime = time.clock()
+            connection.write(message)
+            h = connection.read(min=500000, max=500000)
+            stopTime = time.clock()
+            if stopTime-startTime:
+                print("1MB exchanged at rate of %d bytes/sec" % int(1000000/(stopTime-startTime)))
+            else:
+                print("1MB exchanged very fast")
+            
+            assert(h == message)                
+
+        elif datasize == "500k":
+            startTime = time.clock()
+            connection.write(message)
+            h = connection.read(min=250000, max=250000)
+            stopTime = time.clock() 
+            if stopTime-startTime:
+                print("500kbytes exchanged at rate of %d bytes/sec" % int(500000/(stopTime-startTime)))
+            else:
+                print("500kbytes exchanged very fast")
+    
+            assert(h == message)                                               
+             
+        elif datasize == "100k":
+            startTime = time.clock()
+            connection.write(message)
+            h = connection.read(min=50000, max=50000)
+            stopTime = time.clock()
+            if stopTime-startTime:
+                print("100kBytes exchanged at rate of %d bytes/sec" % int(100000/(stopTime-startTime)))
+            else:
+                print("100kBytes exchanged very fast")
+                
+            assert(h == message)                
+                
+        elif datasize == "2k":  
+            startTime = time.clock()
+            connection.write(message)
+            h = connection.read(min=1000, max=1000)
+            stopTime = time.clock()  
+            if stopTime-startTime:
+                print("2kBytes exchanged at rate of %d bytes/sec" % int(2000/(stopTime-startTime)))
+            else:
+                print("2kBytes exchanged very fast")
+            
+            assert(h == message)                
+                
+        else:
+            print("Datasize not supported or syntax error! Exiting...")
+            exit(1)
                 
 
-            print(" Used Ciphersuite: {0}".\
-                  format(CipherSuite.ietfNames[connection.session.cipherSuite]))            
+        print(" Used Ciphersuite: {0}".\
+                format(CipherSuite.ietfNames[connection.session.cipherSuite]))            
             
-            print(" ")
-            connection.close()
-
+        print(" ")
+        connection.close()
 
     synchro.close()
 
@@ -281,6 +266,7 @@ def serverTestCmd(argv):
     # following is blocking until the other side doesn't open
     synchro = synchroSocket.accept()[0]
 
+
     def connect():
         return TLSConnection(lsock.accept()[0])
 
@@ -290,76 +276,51 @@ def serverTestCmd(argv):
     x509Key = parsePEMKey(s, private=True)
 
     test_no = 0
-
-   
-    implementations = ["python"]
     
-    for implementation in ['python']:
-        for cipher in ["aes128gcm", "aes128", "aes256", "3des",
-                       "rc4","chacha20-poly1305","speck128", "speck128gcm", "speck192gcm"]:
-            # skip tests with implementations that don't support them
-            if cipher == "3des" and implementation not in ("openssl",
-                                                           "pycrypto"):
-                continue
-            if cipher in ("aes128gcm", "aes256gcm") and \
-                    implementation not in ("pycrypto",
-                                           "python"):
-                continue
-            if cipher in ("chacha20-poly1305", ) and \
-                    implementation not in ("python", ):
-                continue
-            
-            if cipher == "speck128" and \
-                    implementation not in ("python"):
-                continue
 
-            test_no += 1
+    for cipher in ["aes128gcm", "aes128", "aes256", "rc4","chacha20-poly1305","speck128", "speck128gcm", "speck192gcm"]:
+       
+        test_no += 1
 
-            print("Test {0}:".format(test_no), end=' ')
-            synchro.send(b'R')
-            connection = connect()
+        print("Test {0}:".format(test_no), end=' ')
+        synchro.send(b'R')
+        connection = connect()
 
-            settings = HandshakeSettings()
-            settings.cipherNames = [cipher]
-            settings.cipherImplementations = [implementation, "python"]
+        settings = HandshakeSettings()
+        settings.cipherNames = [cipher]
+        settings.cipherImplementations = ["python"]
 
-            connection.handshakeServer(certChain=x509Chain, privateKey=x509Key,
+        connection.handshakeServer(certChain=x509Chain, privateKey=x509Key,
                                         settings=settings)
-            print(connection.getCipherName(), connection.getCipherImplementation())
+        print(connection.getCipherName(), connection.getCipherImplementation())
             
-            if datasize == "4MB":
-                h = connection.read(min=2000000, max=2000000)
-                assert(h == b"hello"*400000) 
-                    
-            elif datasize == "2MB":
-                    h = connection.read(min=1000000, max=1000000)
-                    assert(h == b"hello"*200000)
-                    
-            elif datasize == "1MB":
-                h = connection.read(min=500000, max=500000)
-                assert(h == b"hello"*100000)            
+        if datasize == "4MB":
+            h = connection.read(min=2000000, max=2000000)
+            
+        elif datasize == "2MB":
+                h = connection.read(min=1000000, max=1000000) 
+                
+        elif datasize == "1MB":
+            h = connection.read(min=500000, max=500000)         
 
-            elif datasize == "500k":
-                h = connection.read(min=250000, max=250000)
-                assert(h == b"hello"*50000) 
+        elif datasize == "500k":
+            h = connection.read(min=250000, max=250000)
                 
-            elif datasize == "100k":
-                    h = connection.read(min=50000, max=50000)
-                    assert(h == b"hello"*10000)
+        elif datasize == "100k":
+                h = connection.read(min=50000, max=50000)
                 
-            elif datasize == "2k":
-                h = connection.read(min=1000, max=1000)
-                assert(h == b"hello"*200)
+        elif datasize == "2k":
+            h = connection.read(min=1000, max=1000)
             
-            else:  
+        else:  
                 
-                print("Datasize not supported or syntax error! Exiting...")
-                exit(1)
+            print("Datasize not supported or syntax error! Exiting...")
+            exit(1)
 
             
             
-            connection.write(h)
-            connection.close()
+        connection.write(h)
+        connection.close()
 
 
 

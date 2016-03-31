@@ -107,7 +107,7 @@ def createSPECK128GCM(key, implList=None):
     @param key: A 16 or 32 byte byte array.
 
     @rtype: L{tlslite.utils.AESGCM}
-    @return: An AESGCM object.
+    @return: A SPECK128GCM object.
     """
     if implList is None:
         implList = ["python"]
@@ -125,7 +125,7 @@ def createSPECK192GCM(key, implList=None):
     @param key: A 16 or 32 byte byte array.
 
     @rtype: L{tlslite.utils.AESGCM}
-    @return: An AESGCM object.
+    @return:  A SPECK192GCM  object.
     """
     if implList is None:
         implList = ["python"]

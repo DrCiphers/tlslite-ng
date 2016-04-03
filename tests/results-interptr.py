@@ -76,9 +76,6 @@ numonly2MB = cleanListData(file5)
 
 numonly3MB=[]   
 numonly3MB = cleanListData(file6)
-
-numonly4MB=[]   
-numonly4MB = cleanListData(file7)
         
 #===============================================
 
@@ -132,12 +129,6 @@ chacha3MB=0
 speck128gcmval3MB=0
 speck192gcmval3MB=0
 
-aes128gcmval4MB=0
-aes128val4MB=0
-speck128val4MB=0
-chacha4MB=0
-speck128gcmval4MB=0
-speck192gcmval4MB=0
 
 while a < len(numonly2k):
     
@@ -184,14 +175,7 @@ while a < len(numonly2k):
         speck128val3MB += int(numonly3MB[d])
         speck128gcmval3MB += int(numonly3MB[e])
         speck192gcmval3MB += int(numonly3MB[f])        
-    
-        aes128gcmval4MB += int(numonly4MB[a])
-        aes128val4MB += int(numonly4MB[b])
-        chacha4MB += int(numonly4MB[c])
-        speck128val4MB += int(numonly4MB[d])
-        speck128gcmval4MB += int(numonly4MB[e])
-        speck192gcmval4MB += int(numonly4MB[f])
-        
+
         
         a += 8
         b += 8

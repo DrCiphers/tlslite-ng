@@ -10,7 +10,6 @@
 # See the LICENSE file for legal information regarding use of this file.
 
 
-
 from __future__ import print_function
 
 
@@ -69,10 +68,10 @@ Commands:
     
 
 def dataRandomizer(datasize):
-    
-    if datasize == "4MB":    
-        data = os.urandom(2000000)
-    
+           
+    if datasize == "3MB":
+        data = os.urandom(1500000)    
+        
     elif datasize == "2MB":
         data = os.urandom(1000000)
         
@@ -122,8 +121,8 @@ def clientTestCmd(argv):
     badFault = False
  
     message = dataRandomizer(datasize) 
-    
-    for cipher in ["aes128gcm", "aes128", "aes256",
+ 
+    for cipher in [ "aes128gcm","aes128", "aes256",
                        "rc4", "chacha20-poly1305", "speck128", "speck128gcm","speck192gcm"]:                   
         test_no += 1
 
@@ -136,22 +135,20 @@ def clientTestCmd(argv):
         settings.cipherImplementations = ["python"]
         connection.handshakeClientCert(settings=settings)
         print("%s %s:" % (connection.getCipherName(), connection.getCipherImplementation()), end=' ')
-       
-          
-            
-        if datasize == "4MB":
+
+
+        if datasize == "3MB":
             startTime = time.clock()
-                
-            #send a random message of size 4MB
             connection.write(message)
-            h = connection.read(min=2000000, max=2000000)          
-            stopTime = time.clock()
+            h = connection.read(min=1500000, max=1500000)
+            stopTime = time.clock()                
             if stopTime-startTime:
-                print("4MB exchanged at rate of %d bytes/sec" % int(4000000/(stopTime-startTime)))
+                print("3MB exchanged at rate of %d bytes/sec" % int(3000000/(stopTime-startTime)))
             else:
-                print("4MB exchanged very fast")
+                print("3MB exchanged very fast")
+                            
             assert(h == message)            
-            
+
         elif datasize == "2MB":
             startTime = time.clock()
             connection.write(message)
@@ -296,11 +293,11 @@ def serverTestCmd(argv):
                                         settings=settings)
         print(connection.getCipherName(), connection.getCipherImplementation())
             
-        if datasize == "4MB":
-            h = connection.read(min=2000000, max=2000000)
-            
+        if datasize == "3MB":
+            h = connection.read(min=1500000, max=1500000)             
+
         elif datasize == "2MB":
-                h = connection.read(min=1000000, max=1000000) 
+            h = connection.read(min=1000000, max=1000000) 
                 
         elif datasize == "1MB":
             h = connection.read(min=500000, max=500000)         

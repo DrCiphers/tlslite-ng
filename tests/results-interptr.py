@@ -45,7 +45,6 @@ file3=fh3.readlines()
 file4=fh4.readlines()
 file5=fh5.readlines()
 file6=fh6.readlines()
-file7=fh7.readlines()
 
 
 fh1.close()
@@ -76,6 +75,7 @@ numonly2MB = cleanListData(file5)
 
 numonly3MB=[]   
 numonly3MB = cleanListData(file6)
+
         
 #===============================================
 
@@ -130,6 +130,7 @@ speck128gcmval3MB=0
 speck192gcmval3MB=0
 
 
+
 while a < len(numonly2k):
     
         aes128gcmval2k += int(numonly2k[a])
@@ -175,7 +176,7 @@ while a < len(numonly2k):
         speck128val3MB += int(numonly3MB[d])
         speck128gcmval3MB += int(numonly3MB[e])
         speck192gcmval3MB += int(numonly3MB[f])        
-
+    
         
         a += 8
         b += 8

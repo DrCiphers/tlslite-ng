@@ -11,6 +11,8 @@
 #          for NUM in `seq 1 20`; do ./throughput-tests.py client localhost:4443 . 2MB ; done >> results2MB.txt
 #          for NUM in `seq 1 20`; do ./throughput-tests.py client localhost:4443 . 3MB ; done >> results3MB.txt
 
+import math
+
 
 def cleanListData(filename):
         cleanlist=[]
@@ -27,6 +29,39 @@ def cleanListData(filename):
 
 
 
+def Variance(numberList,meanValue,algo):
+
+        val=0
+
+        #steps 
+        if algo=="aes128gcm":
+                step=0
+        elif algo=="aes128":
+                step=1
+        elif algo=="chacha20":
+                step=4
+        elif algo=="speck128":
+                step=5
+        elif algo=="speck128gcm":
+                step=6
+        elif algo=="speck192gcm":
+                step=7        
+
+        start=0
+        resultval=0
+        
+        while start < len(numberList):
+                retNum = int(numberList[step])
+                val = (retNum-meanValue)
+                val = val**2
+                resultval += val
+                step+=8
+                start+=8                
+        
+        
+        varNum = resultval/20
+        
+        return varNum
 
 # Open the file handlers read the contents to a variable
 # and close them.
@@ -192,54 +227,92 @@ length = 20
     
 print("Average throughput of Algorithms when transferring 2kbytes of data")
 print("Average Value of aes128gcm: %s bytes/sec"%(aes128gcmval2k/length))
+print("The Standard Deviation  of aes128gcm is:%s" %(Variance(numonly2k, aes128gcmval2k/length, "aes128gcm")**0.5))
 print("Average Value of aes128python: %s bytes/sec"%(aes128val2k/length))
+print("The Standard Deviation  of aes128python is:%s" %(Variance(numonly2k, aes128val2k/length, "aes128")**0.5))
 print("Average Value of chacha20: %s bytes/sec"%(chacha2k/length))
+print("The Standard Deviation  of chacha20 is:%s" %(Variance(numonly2k, chacha2k/length, "chacha20")**0.5))
 print("Average Value of speck128: %s bytes/sec"%(speck128val2k/length))
+print("The Standard Deviation  of speck128 is:%s" %(Variance(numonly2k, speck128val2k/length, "speck128")**0.5))
 print("Average Value of speck128gcm: %s bytes/sec"%(speck128gcmval2k/length))
+print("The Standard Deviation  of speck128gcm is:%s" %(Variance(numonly2k, speck128gcmval2k/length, "speck128gcm")**0.5))
 print("Average Value of speck192gcm: %s bytes/sec"%(speck192gcmval2k/length))
+print("The Standard Deviation  of speck192gcm is:%s" %(Variance(numonly2k, speck192gcmval2k/length, "speck192gcm")**0.5))
 
 
 print(" ")
 print("Average throughput of Algorithms when transferring 100k of data")
 print("Average Value of aes128gcm: %s bytes/sec"%(aes128gcmval100k/length))
+print("The Standard Deviation  of aes128gcm is:%s" %(Variance(numonly100k, aes128gcmval100k/length, "aes128gcm")**0.5))
 print("Average Value of aes128python: %s bytes/sec"%(aes128val100k/length))
+print("The Standard Deviation  of aes128python is:%s" %(Variance(numonly100k, aes128val100k/length, "aes128")**0.5))
 print("Average Value of chacha20: %s bytes/sec"%(chacha100k/length))
+print("The Standard Deviation  of chacha20 is:%s" %(Variance(numonly100k, chacha100k/length, "chacha20")**0.5))
 print("Average Value of speck128: %s bytes/sec"%(speck128val100k/length))
+print("The Standard Deviation  of speck128 is:%s" %(Variance(numonly100k, speck128val100k/length, "speck128")**0.5))
 print("Average Value of speck128gcm: %s bytes/sec"%(speck128gcmval100k/length))
+print("The Standard Deviation  of speck128gcm is:%s" %(Variance(numonly100k, speck128gcmval100k/length, "speck128gcm")**0.5))
 print("Average Value of speck192gcm: %s bytes/sec"%(speck192gcmval100k/length))
+print("The Standard Deviation  of speck192gcm is:%s" %(Variance(numonly100k, speck192gcmval100k/length, "speck192gcm")**0.5))
 
 print(" ")
 print("Average throughput of Algorithms when transferring 500k of data")
 print("Average Value of aes128gcm: %s bytes/sec"%(aes128gcmval500k/length))
+print("The Standard Deviation  of aes128gcm is:%s" %(Variance(numonly500k, aes128gcmval500k/length, "aes128gcm")**0.5))
 print("Average Value of aes128python: %s bytes/sec"%(aes128val500k/length))
+print("The Standard Deviation  of aes128python is:%s" %(Variance(numonly500k, aes128val500k/length, "aes128")**0.5))
 print("Average Value of chacha20: %s bytes/sec"%(chacha500k/length))
+print("The Standard Deviation  of chacha20 is:%s" %(Variance(numonly500k, chacha500k/length, "chacha20")**0.5))
 print("Average Value of speck128: %s bytes/sec"%(speck128val500k/length))
+print("The Standard Deviation  of speck128 is:%s" %(Variance(numonly500k, speck128val500k/length, "speck128")**0.5))
 print("Average Value of speck128gcm: %s bytes/sec"%(speck128gcmval500k/length))
+print("The Standard Deviation  of speck128gcm is:%s" %(Variance(numonly500k, speck128gcmval500k/length, "speck128gcm")**0.5))
 print("Average Value of speck192gcm: %s bytes/sec"%(speck192gcmval500k/length))
+print("The Standard Deviation  of speck192gcm is:%s" %(Variance(numonly500k, speck192gcmval500k/length, "speck192gcm")**0.5))
 
 print(" ")
 print("Average throughput of Algorithms when transferring 1MB of data")
 print("Average Value of aes128gcm: %s bytes/sec"%(aes128gcmval1MB/length))
+print("The Standard Deviation  of aes128gcm is:%s" %(Variance(numonly1MB, aes128gcmval1MB/length, "aes128gcm")**0.5))
 print("Average Value of aes128python: %s bytes/sec"%(aes128val1MB/length))
+print("The Standard Deviation  of aes128python is:%s" %(Variance(numonly1MB, aes128val1MB/length, "aes128")**0.5))
 print("Average Value of chacha20: %s bytes/sec"%(chacha1MB/length))
+print("The Standard Deviation  of chacha20 is:%s" %(Variance(numonly1MB, chacha1MB/length, "chacha20")**0.5))
 print("Average Value of speck128: %s bytes/sec"%(speck128val1MB/length))
+print("The Standard Deviation  of speck128 is:%s" %(Variance(numonly1MB, speck128val1MB/length, "speck128")**0.5))
 print("Average Value of speck128gcm: %s bytes/sec"%(speck128gcmval1MB/length))
+print("The Standard Deviation  of speck128gcm is:%s" %(Variance(numonly1MB, speck128gcmval1MB/length, "speck128gcm")**0.5))
 print("Average Value of speck192gcm: %s bytes/sec"%(speck192gcmval1MB/length))
+print("The Standard Deviation  of speck192gcm is:%s" %(Variance(numonly1MB, speck192gcmval1MB/length, "speck192gcm")**0.5))
+
 
 print(" ")
 print("Average throughput of Algorithms when transferring 2MB of data")
 print("Average Value of aes128gcm: %s bytes/sec"%(aes128gcmval2MB/length))
+print("The Standard Deviation  of aes128gcm is:%s" %(Variance(numonly2MB, aes128gcmval2MB/length, "aes128gcm")**0.5))
 print("Average Value of aes128python: %s bytes/sec"%(aes128val2MB/length))
+print("The Standard Deviation  of aes128python is:%s" %(Variance(numonly2MB, aes128val2MB/length, "aes128")**0.5))
 print("Average Value of chacha20: %s bytes/sec"%(chacha2MB/length))
+print("The Standard Deviation  of chacha20 is:%s" %(Variance(numonly2MB, chacha2MB/length, "chacha20")**0.5))
 print("Average Value of speck128: %s bytes/sec"%(speck128val2MB/length))
+print("The Standard Deviation  of speck128 is:%s" %(Variance(numonly2MB, speck128val2MB/length, "speck128")**0.5))
 print("Average Value of speck128gcm: %s bytes/sec"%(speck128gcmval2MB/length))
+print("The Standard Deviation  of speck128gcm is:%s" %(Variance(numonly2MB, speck128gcmval2MB/length, "speck128gcm")**0.5))
 print("Average Value of speck192gcm: %s bytes/sec"%(speck192gcmval2MB/length))
+print("The Standard Deviation  of speck192gcm is:%s" %(Variance(numonly2MB, speck192gcmval2MB/length, "speck192gcm")**0.5))
 
 print(" ")
 print("Average throughput of Algorithms when transferring 3MB of data")
 print("Average Value of aes128gcm: %s bytes/sec"%(aes128gcmval3MB/length))
+print("The Standard Deviation  of aes128gcm is:%s" %(Variance(numonly3MB, aes128gcmval3MB/length, "aes128gcm")**0.5))
 print("Average Value of aes128python: %s bytes/sec"%(aes128val3MB/length))
+print("The Standard Deviation  of aes128python is:%s" %(Variance(numonly3MB, aes128val3MB/length, "aes128")**0.5))
 print("Average Value of chacha20: %s bytes/sec"%(chacha3MB/length))
+print("The Standard Deviation  of chacha20 is:%s" %(Variance(numonly3MB, chacha3MB/length, "chacha20")**0.5))
 print("Average Value of speck128: %s bytes/sec"%(speck128val3MB/length))
+print("The Standard Deviation  of speck128 is:%s" %(Variance(numonly3MB, speck128val3MB/length, "speck128")**0.5))
 print("Average Value of speck128gcm: %s bytes/sec"%(speck128gcmval3MB/length))
+print("The Standard Deviation  of speck128gcm is:%s" %(Variance(numonly3MB, speck128gcmval3MB/length, "speck128gcm")**0.5))
 print("Average Value of speck192gcm: %s bytes/sec"%(speck192gcmval3MB/length))
+print("The Standard Deviation  of speck192gcm is:%s" %(Variance(numonly3MB, speck192gcmval3MB/length, "speck192gcm")**0.5))
+print(" ")

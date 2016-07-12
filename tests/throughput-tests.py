@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
 # Authors: 
 #   Trevor Perrin
@@ -126,84 +126,119 @@ def clientTestCmd(argv):
                        "rc4", "chacha20-poly1305", "speck128", "speck128gcm","speck192gcm"]:                   
         test_no += 1
 
+        t1 = time.time()
         print("Test {0}:".format(test_no), end=' ')
         synchro.recv(1)
         connection = connect()
+
+        t2 = time.time()
 
         settings = HandshakeSettings()
         settings.cipherNames = [cipher]
         settings.cipherImplementations = ["python"]
         connection.handshakeClientCert(settings=settings)
+        t3 = time.time()
         print("%s %s:" % (connection.getCipherName(), connection.getCipherImplementation()), end=' ')
 
 
         if datasize == "3MB":
-            startTime = time.clock()
+            t3 = time.time()
             connection.write(message)
             h = connection.read(min=1500000, max=1500000)
-            stopTime = time.clock()                
-            if stopTime-startTime:
-                print("3MB exchanged at rate of %d bytes/sec" % int(3000000/(stopTime-startTime)))
+            t4 = time.time()                
+            if t4-t3:
+                print("3MB exchanged at rate of %d bytes/sec" % int(3000000/(t4-t3)))
+		print ('Raw timers:','t1=', t1,'t2=', t2,'t3=', t3,'t4=', t4)
+                print ('Intervals:', t2-t1, t3-t2, t4-t3)
+		sizeInBytes = sys.getsizeof(h)*2
+                print("Tranmsitted data size:", sizeInBytes)
+		print("Throughput is bytes/sec:", round(sizeInBytes / (t4-t3), 3))
+
             else:
                 print("3MB exchanged very fast")
                             
             assert(h == message)            
 
         elif datasize == "2MB":
-            startTime = time.clock()
+            t3 = time.time()
             connection.write(message)
             h = connection.read(min=1000000, max=1000000)
-            stopTime = time.clock()                
-            if stopTime-startTime:
-                print("2MB exchanged at rate of %d bytes/sec" % int(2000000/(stopTime-startTime)))
+            t4 = time.time()                
+            if t4-t3:
+                print("2MB exchanged at rate of %d bytes/sec" % int(2000000/(t4-t3)))
+		print ('Raw timers:','t1=', t1,'t2=', t2,'t3=', t3,'t4=', t4)
+		print ('Intervals:', t2-t1, t3-t2, t4-t3)
+		sizeInBytes = sys.getsizeof(h)*2
+		print("Tranmsitted data size:", sizeInBytes)
+		print("Throughput:", round(sizeInBytes / (t4-t3), 3))		
             else:
                 print("2MB exchanged very fast")
                 
             assert(h == message)
                 
         elif datasize == "1MB": 
-            startTime = time.clock()
+            t3 = time.time()
             connection.write(message)
             h = connection.read(min=500000, max=500000)
-            stopTime = time.clock()
-            if stopTime-startTime:
-                print("1MB exchanged at rate of %d bytes/sec" % int(1000000/(stopTime-startTime)))
+            t4 = time.time()
+            if t4-t3:
+                print("1MB exchanged at rate of %d bytes/sec" % int(1000000/(t4-t3)))
+                print ('Raw timers:','t1=', t1,'t2=', t2,'t3=', t3,'t4=', t4)
+                print ('Intervals:', t2-t1, t3-t2, t4-t3)
+		sizeInBytes = sys.getsizeof(h)*2
+                print("Tranmsitted data size:", sizeInBytes)
+		print("Throughput:", round(sizeInBytes / (t4-t3), 3))
             else:
                 print("1MB exchanged very fast")
             
             assert(h == message)                
 
         elif datasize == "500k":
-            startTime = time.clock()
+	    t3 = time.time()
             connection.write(message)
             h = connection.read(min=250000, max=250000)
-            stopTime = time.clock() 
-            if stopTime-startTime:
-                print("500kbytes exchanged at rate of %d bytes/sec" % int(500000/(stopTime-startTime)))
+	    t4 = time.time()
+            if t4-t3:
+                print("500kbytes exchanged at rate of %d bytes/sec" % int(500000/(t4-t3)))
+		print ('Raw timers:','t1=', t1,'t2=', t2,'t3=', t3,'t4=', t4)
+		print ('Intervals:', t2-t1, t3-t2, t4-t3)
+		sizeInBytes = sys.getsizeof(h)*2
+		print("Tranmsitted data size:", sizeInBytes)
+		print("Throughput:", round(sizeInBytes / (t4-t3), 3))		
             else:
                 print("500kbytes exchanged very fast")
     
             assert(h == message)                                               
              
         elif datasize == "100k":
-            startTime = time.clock()
+            t3 = time.time()
             connection.write(message)
             h = connection.read(min=50000, max=50000)
-            stopTime = time.clock()
-            if stopTime-startTime:
-                print("100kBytes exchanged at rate of %d bytes/sec" % int(100000/(stopTime-startTime)))
+            t4 = time.time()
+            if t4-t3:
+                print("100kBytes exchanged at rate of %d bytes/sec" % int(100000/(t4-t3)))
+		print ('Raw timers:','t1=', t1,'t2=', t2,'t3=', t3,'t4=', t4)
+		print ('Intervals:', t2-t1, t3-t2, t4-t3)
+		sizeInBytes = sys.getsizeof(h)*2
+		print("Tranmsitted data size:", sizeInBytes)
+		print("Throughput:", round(sizeInBytes / (t4-t3), 3))		
             else:
                 print("100kBytes exchanged very fast")
                 
             assert(h == message)                
                 
         elif datasize == "2k":  
-            startTime = time.clock()
+            t3 = time.time()
             connection.write(message)
             h = connection.read(min=1000, max=1000)
-            stopTime = time.clock()  
-            if stopTime-startTime:
-                print("2kBytes exchanged at rate of %d bytes/sec" % int(2000/(stopTime-startTime)))
+	    t4 = time.time()
+            if t4-t3:
+                print("2kBytes exchanged at rate of %d bytes/sec" % int(2000/(t4-t3)))
+		print ('Raw timers:','t1=', t1,'t2=', t2,'t3=', t3,'t4=', t4)
+		print ('Intervals:', t2-t1, t3-t2, t4-t3)
+		sizeInBytes = sys.getsizeof(h)*2
+		print("Tranmsitted data size:", sizeInBytes)
+		print("Throughput:", round(sizeInBytes / (t4-t3), 3))		
             else:
                 print("2kBytes exchanged very fast")
             
@@ -214,7 +249,7 @@ def clientTestCmd(argv):
             exit(1)
                 
 
-        print(" Used Ciphersuite: {0}".\
+        print("Used Ciphersuite: {0}".\
                 format(CipherSuite.ietfNames[connection.session.cipherSuite]))            
             
         print(" ")

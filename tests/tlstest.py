@@ -16,7 +16,7 @@ import sys
 import os
 import os.path
 import socket
-import time
+import timeit
 import getopt
 try:
     from BaseHTTPServer import HTTPServer
@@ -440,10 +440,10 @@ def clientTestCmd(argv):
             connection.handshakeClientCert(settings=settings)
             print("%s %s:" % (connection.getCipherName(), connection.getCipherImplementation()), end=' ')
 
-            startTime = time.time()
+            startTime = timeit.default_timer()
             connection.write(b"hello"*10000)
             h = connection.read(min=50000, max=50000)
-            stopTime = time.time()
+            stopTime = timeit.default_timer()
             sizeofdata = len(h)*2
             if stopTime-startTime:
                 print("100K exchanged at rate of %d bytes/sec" % int(sizeofdata/(stopTime-startTime)))
